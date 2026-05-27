@@ -1,8 +1,106 @@
-import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+
+const PROTECTED_PARTNER  = /^\/partner(\/|$)/;
+const PROTECTED_AGENCY   = /^\/agency(\/|$)/;
+const PROTECTED_ADMIN    = /^\/admin(\/|$)/;
+const AUTH_PAGES         = /^\/(login|register)(\/|$)/;
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => request.cookies.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
+
+  const isDashboard =
+    PROTECTED_PARTNER.test(pathname) ||
+    PROTECTED_AGENCY.test(pathname) ||
+    PROTECTED_ADMIN.test(pathname);
+
+  // Unauthenticated → redirect to login for protected routes
+  if (isDashboard && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Authenticated → guard role-specific dashboards
+  if (isDashboard && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, status")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    if (profile.status === "pending") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/pending";
+      return NextResponse.redirect(url);
+    }
+
+    if (profile.status === "suspended") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/suspended";
+      return NextResponse.redirect(url);
+    }
+
+    // Wrong dashboard for role
+    const wrongDashboard =
+      (PROTECTED_PARTNER.test(pathname) && profile.role !== "partner") ||
+      (PROTECTED_AGENCY.test(pathname)  && profile.role !== "agency")  ||
+      (PROTECTED_ADMIN.test(pathname)   && profile.role !== "admin");
+
+    if (wrongDashboard) {
+      const url = request.nextUrl.clone();
+      url.pathname =
+        profile.role === "admin"   ? "/admin"   :
+        profile.role === "partner" ? "/partner" : "/agency";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Logged-in users visiting login/register → redirect to their dashboard
+  if (AUTH_PAGES.test(pathname) && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, status")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.status === "approved") {
+      const url = request.nextUrl.clone();
+      url.pathname =
+        profile.role === "admin"   ? "/admin"   :
+        profile.role === "partner" ? "/partner" : "/agency";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return response;
 }
 
 export const config = {
