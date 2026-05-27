@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F8FA;
+  --foreground: #1B3A5C;
+
+  /* CretanDesk brand colors */
+  --navy: #1B3A5C;
+  --gold: #E8A020;
+  --success: #2D9B6F;
+  --danger: #D94040;
+  --muted: #6B7A8D;
+  --card: #ffffff;
+  --border: #E2E8F0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-light: #2a5480;
+  --color-navy-dark: #122840;
+  --color-gold: var(--gold);
+  --color-gold-light: #F0B840;
+  --color-gold-dark: #C88A10;
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-playfair);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display, 'Playfair Display', serif);
+}
