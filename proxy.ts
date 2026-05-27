@@ -1,37 +1,40 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PARTNER  = /^\/partner(\/|$)/;
-const PROTECTED_AGENCY   = /^\/agency(\/|$)/;
-const PROTECTED_ADMIN    = /^\/admin(\/|$)/;
-const AUTH_PAGES         = /^\/(login|register)(\/|$)/;
+const PROTECTED_PARTNER = /^\/partner(\/|$)/;
+const PROTECTED_AGENCY  = /^\/agency(\/|$)/;
+const PROTECTED_ADMIN   = /^\/admin(\/|$)/;
+const AUTH_PAGES        = /^\/(login|register)(\/|$)/;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
+  // Pass through if Supabase is not yet configured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return response;
+  }
+
+  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        );
       },
-    }
-  );
+    },
+  });
 
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
   const isDashboard =
     PROTECTED_PARTNER.test(pathname) ||
-    PROTECTED_AGENCY.test(pathname) ||
+    PROTECTED_AGENCY.test(pathname)  ||
     PROTECTED_ADMIN.test(pathname);
 
   // Unauthenticated → redirect to login for protected routes
@@ -68,7 +71,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Wrong dashboard for role
+    // Wrong dashboard for role → redirect to correct one
     const wrongDashboard =
       (PROTECTED_PARTNER.test(pathname) && profile.role !== "partner") ||
       (PROTECTED_AGENCY.test(pathname)  && profile.role !== "agency")  ||
@@ -83,7 +86,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Logged-in users visiting login/register → redirect to their dashboard
+  // Logged-in approved users visiting login/register → redirect to their dashboard
   if (AUTH_PAGES.test(pathname) && user) {
     const { data: profile } = await supabase
       .from("profiles")
