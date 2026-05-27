@@ -383,7 +383,19 @@ export type Database = {
       user_status: "pending" | "approved" | "suspended"
       booking_status: "pending" | "accepted" | "rejected" | "completed"
       excursion_category: "sea" | "adventure" | "aerial" | "gastronomy" | "culture" | "vip" | "niche"
-      cretan_area: "heraklion" | "chania" | "rethymno" | "lasithi"
+      cretan_area:
+        // Prefectures (legacy / filter buckets)
+        | "heraklion" | "chania" | "rethymno" | "lasithi"
+        // Heraklion towns
+        | "heraklion_city" | "malia" | "hersonissos" | "gouves"
+        | "anissaras" | "anogia" | "arkadi" | "zaros"
+        // Chania towns
+        | "chania_city" | "kolympari" | "paleochora" | "sfakia"
+        | "sougia" | "georgioupoli" | "vamos"
+        // Rethymno towns
+        | "rethymno_city" | "plakias" | "agia_galini" | "spili"
+        // Lasithi towns
+        | "agios_nikolaos" | "elounda" | "siteia" | "ierapetra" | "lasithi_plateau"
     }
     CompositeTypes: {
       [_ in never]: never

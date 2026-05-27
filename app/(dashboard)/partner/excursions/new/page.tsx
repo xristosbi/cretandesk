@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, ArrowLeft } from "lucide-react";
+import { CATEGORIES } from "@/lib/constants/categories";
+import { PREFECTURES } from "@/lib/constants/areas";
+
+const selectCls =
+  "flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy";
 
 export default function NewExcursionPage() {
   const [state, action, pending] = useActionState(createExcursion, { error: null });
@@ -43,27 +47,39 @@ export default function NewExcursionPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
+          {/* Category */}
           <div className="space-y-1.5">
-            <Label>Κατηγορία</Label>
-            <select name="category" className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy">
-              <option value="">Επιλογή…</option>
-              <option value="sea">Θαλάσσια</option>
-              <option value="adventure">Περιπέτεια</option>
-              <option value="aerial">Εναέρια</option>
-              <option value="gastronomy">Γαστρονομία</option>
-              <option value="culture">Πολιτισμός</option>
-              <option value="vip">VIP</option>
-              <option value="niche">Ειδικές</option>
+            <Label htmlFor="category">Κατηγορία</Label>
+            <select id="category" name="category" className={selectCls}>
+              <option value="">Επιλογή κατηγορίας…</option>
+              {CATEGORIES.map((cat) => (
+                <optgroup key={cat.value} label={cat.label}>
+                  {cat.subcategories.map((sub) => (
+                    <option key={sub.value} value={`${cat.value}:${sub.value}`}>
+                      {sub.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
+            {/* Hidden field stores just the category key for DB */}
+            <p className="text-xs text-muted">Επιλέξτε κατηγορία → υποκατηγορία</p>
           </div>
+
+          {/* Area — grouped by prefecture */}
           <div className="space-y-1.5">
-            <Label>Περιοχή</Label>
-            <select name="area" className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy">
-              <option value="">Επιλογή…</option>
-              <option value="heraklion">Ηράκλειο</option>
-              <option value="chania">Χανιά</option>
-              <option value="rethymno">Ρέθυμνο</option>
-              <option value="lasithi">Λασίθι</option>
+            <Label htmlFor="area">Περιοχή</Label>
+            <select id="area" name="area" className={selectCls}>
+              <option value="">Επιλογή περιοχής…</option>
+              {PREFECTURES.map((pref) => (
+                <optgroup key={pref.value} label={pref.label}>
+                  {pref.towns.map((town) => (
+                    <option key={town.value} value={town.value}>
+                      {town.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </div>
         </div>
@@ -74,7 +90,7 @@ export default function NewExcursionPage() {
             <Input id="price_per_person" name="price_per_person" type="number" min="0" step="0.01" placeholder="25.00" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="max_capacity">Μέγιστη χωρητικότητα</Label>
+            <Label htmlFor="max_capacity">Μέγ. χωρητικότητα</Label>
             <Input id="max_capacity" name="max_capacity" type="number" min="1" placeholder="20" />
           </div>
           <div className="space-y-1.5">
@@ -93,7 +109,9 @@ export default function NewExcursionPage() {
           <Button type="submit" disabled={pending} className="flex-1">
             {pending ? "Αποθήκευση…" : "Δημιουργία Εκδρομής"}
           </Button>
-          <Link href="/partner/excursions"><Button type="button" variant="outline">Ακύρωση</Button></Link>
+          <Link href="/partner/excursions">
+            <Button type="button" variant="outline">Ακύρωση</Button>
+          </Link>
         </div>
       </form>
     </div>

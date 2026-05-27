@@ -8,13 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-
-const AREAS = [
-  { value: "heraklion", label: "Ηράκλειο" },
-  { value: "chania",    label: "Χανιά" },
-  { value: "rethymno",  label: "Ρέθυμνο" },
-  { value: "lasithi",   label: "Λασίθι" },
-];
+import { PREFECTURES } from "@/lib/constants/areas";
 
 type Partner = { business_name: string; afm: string | null; phone: string | null; description: string | null; areas: string[] | null };
 
@@ -70,16 +64,21 @@ export default function PartnerProfilePage() {
           <Label htmlFor="description">Περιγραφή</Label>
           <Textarea id="description" name="description" rows={4} defaultValue={partner.description ?? ""} />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label>Περιοχές δραστηριότητας</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {AREAS.map(({ value, label }) => (
-              <label key={value} className="flex items-center gap-2.5 rounded-lg border border-border bg-background p-3 cursor-pointer hover:border-navy/30 has-[:checked]:border-navy has-[:checked]:bg-navy/5 transition-all">
-                <input type="checkbox" name="areas" value={value} defaultChecked={partner.areas?.includes(value)} className="accent-navy" />
-                <span className="text-sm font-medium text-navy">{label}</span>
-              </label>
-            ))}
-          </div>
+          {PREFECTURES.map((pref) => (
+            <div key={pref.value}>
+              <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">{pref.label}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {pref.towns.map(({ value, label }) => (
+                  <label key={value} className="flex items-center gap-2.5 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:border-navy/30 has-[:checked]:border-navy has-[:checked]:bg-navy/5 transition-all">
+                    <input type="checkbox" name="areas" value={value} defaultChecked={partner.areas?.includes(value)} className="accent-navy" />
+                    <span className="text-sm text-navy">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Αποθήκευση…" : "Αποθήκευση αλλαγών"}

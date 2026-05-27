@@ -10,14 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/utils";
 import { Clock, Users, MapPin, AlertCircle, CheckCircle2, Image } from "lucide-react";
-
-const categoryLabels: Record<string, string> = {
-  sea: "Θαλάσσια", adventure: "Περιπέτεια", aerial: "Εναέρια",
-  gastronomy: "Γαστρονομία", culture: "Πολιτισμός", vip: "VIP", niche: "Ειδικές",
-};
-const areaLabels: Record<string, string> = {
-  heraklion: "Ηράκλειο", chania: "Χανιά", rethymno: "Ρέθυμνο", lasithi: "Λασίθι",
-};
+import { CATEGORIES, getCategoryLabel } from "@/lib/constants/categories";
+import { PREFECTURES, getAreaLabel } from "@/lib/constants/areas";
 
 type Excursion = {
   id: string; name: string; description: string | null; category: string | null;
@@ -78,12 +72,20 @@ export default function AgencyExcursionsPage() {
         <select value={filterArea} onChange={e => setFilterArea(e.target.value)}
           className="h-9 rounded-md border border-border bg-card px-3 text-sm text-navy">
           <option value="">Όλες οι περιοχές</option>
-          {Object.entries(areaLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {PREFECTURES.map((pref) => (
+            <optgroup key={pref.value} label={pref.label}>
+              {pref.towns.map((town) => (
+                <option key={town.value} value={town.value}>{town.label}</option>
+              ))}
+            </optgroup>
+          ))}
         </select>
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
           className="h-9 rounded-md border border-border bg-card px-3 text-sm text-navy">
           <option value="">Όλες οι κατηγορίες</option>
-          {Object.entries(categoryLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {CATEGORIES.map((cat) => (
+            <option key={cat.value} value={cat.value}>{cat.label}</option>
+          ))}
         </select>
         {(filterArea || filterCat) && (
           <Button variant="ghost" size="sm" onClick={() => { setFilterArea(""); setFilterCat(""); }}>Εκκαθάριση</Button>
@@ -109,8 +111,8 @@ export default function AgencyExcursionsPage() {
                   <p className="text-xs text-muted mt-0.5">{(ex.partners as { business_name: string } | null)?.business_name ?? "—"}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {ex.category && <Badge variant="outline">{categoryLabels[ex.category] ?? ex.category}</Badge>}
-                  {ex.area && <Badge variant="outline">{areaLabels[ex.area] ?? ex.area}</Badge>}
+                  {ex.category && <Badge variant="outline">{getCategoryLabel(ex.category)}</Badge>}
+                  {ex.area && <Badge variant="outline">{getAreaLabel(ex.area)}</Badge>}
                 </div>
                 <div className="grid grid-cols-3 gap-1 text-xs text-muted">
                   <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{ex.price_per_person != null ? formatCurrency(ex.price_per_person) : "—"}</span>

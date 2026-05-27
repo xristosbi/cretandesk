@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { Database } from "@/types/database";
 
 const PROTECTED_PARTNER = /^\/partner(\/|$)/;
 const PROTECTED_AGENCY  = /^\/agency(\/|$)/;
@@ -12,11 +13,9 @@ export async function proxy(request: NextRequest) {
   // Pass through if Supabase is not yet configured
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return response;
-  }
+  if (!supabaseUrl || !supabaseKey) return response;
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (cookiesToSet) => {
@@ -29,6 +28,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
+  // Always call getUser — this refreshes the session token and writes new cookies
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
     PROTECTED_AGENCY.test(pathname)  ||
     PROTECTED_ADMIN.test(pathname);
 
-  // Unauthenticated → redirect to login for protected routes
+  // ── Unauthenticated → send to login ────────────────────────────────────────
   if (isDashboard && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -45,14 +45,23 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Authenticated → guard role-specific dashboards
+  // ── Authenticated on a dashboard route ─────────────────────────────────────
   if (isDashboard && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, status")
-      .eq("id", user.id)
-      .single();
+    let profile: { role: string | null; status: string } | null = null;
 
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role, status")
+        .eq("id", user.id)
+        .single();
+      profile = data as { role: string | null; status: string } | null;
+    } catch {
+      // DB not reachable / schema not set up — let the page handle it
+      return response;
+    }
+
+    // Profile missing → send to login (account not fully set up)
     if (!profile) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
@@ -71,7 +80,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Wrong dashboard for role → redirect to correct one
+    // Wrong dashboard for this role
     const wrongDashboard =
       (PROTECTED_PARTNER.test(pathname) && profile.role !== "partner") ||
       (PROTECTED_AGENCY.test(pathname)  && profile.role !== "agency")  ||
@@ -86,20 +95,25 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Logged-in approved users visiting login/register → redirect to their dashboard
+  // ── Logged-in & approved visiting auth pages → go to dashboard ─────────────
   if (AUTH_PAGES.test(pathname) && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, status")
-      .eq("id", user.id)
-      .single();
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role, status")
+        .eq("id", user.id)
+        .single();
+      const profile = data as { role: string | null; status: string } | null;
 
-    if (profile?.status === "approved") {
-      const url = request.nextUrl.clone();
-      url.pathname =
-        profile.role === "admin"   ? "/admin"   :
-        profile.role === "partner" ? "/partner" : "/agency";
-      return NextResponse.redirect(url);
+      if (profile?.status === "approved") {
+        const url = request.nextUrl.clone();
+        url.pathname =
+          profile.role === "admin"   ? "/admin"   :
+          profile.role === "partner" ? "/partner" : "/agency";
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      // pass through
     }
   }
 
