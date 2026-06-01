@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { login } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,14 @@ import { AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, { error: null });
+
+  useEffect(() => {
+    if (state?.redirectTo) {
+      // Full page reload — ensures the browser sends all fresh session cookies
+      // in the next request so the proxy correctly validates the session.
+      window.location.href = state.redirectTo;
+    }
+  }, [state]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole, UserStatus, Area } from "@/types/database";
 
-type AuthState = { error: string | null };
+type AuthState = { error: string | null; redirectTo?: string };
 
 type ProfileResult = { role: UserRole | null; status: UserStatus } | null;
 
@@ -41,14 +41,14 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
     return { error: "Ο λογαριασμός σου δεν έχει ρόλο. Επικοινώνησε με την υποστήριξη." };
   }
 
-  if (profile.status === "pending")   redirect("/pending");
-  if (profile.status === "suspended") redirect("/suspended");
+  if (profile.status === "pending")   return { error: null, redirectTo: "/pending" };
+  if (profile.status === "suspended") return { error: null, redirectTo: "/suspended" };
 
-  if (profile.role === "admin")   redirect("/admin");
-  if (profile.role === "partner") redirect("/partner");
-  if (profile.role === "agency")  redirect("/agency");
+  if (profile.role === "admin")   return { error: null, redirectTo: "/admin" };
+  if (profile.role === "partner") return { error: null, redirectTo: "/partner" };
+  if (profile.role === "agency")  return { error: null, redirectTo: "/agency" };
 
-  redirect("/");
+  return { error: null, redirectTo: "/" };
 }
 
 export async function registerAgency(_prev: AuthState, formData: FormData): Promise<AuthState> {
