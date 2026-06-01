@@ -22,10 +22,7 @@ export async function createExcursion(_prev: { error: string | null }, formData:
   const pricePerPerson = parseFloat(formData.get("price_per_person") as string);
   const maxCapacity    = parseInt(formData.get("max_capacity") as string);
   const durationHours  = parseFloat(formData.get("duration_hours") as string);
-  const photosRaw      = formData.get("photos") as string;
-  const photos         = photosRaw
-    ? photosRaw.split("\n").map((p) => p.trim()).filter(Boolean)
-    : null;
+  const photos         = (formData.getAll("photo_urls") as string[]).filter(Boolean);
 
   if (!name) return { error: "Το όνομα είναι υποχρεωτικό." };
 
@@ -58,10 +55,7 @@ export async function updateExcursion(id: string, formData: FormData) {
   const pricePerPerson = parseFloat(formData.get("price_per_person") as string);
   const maxCapacity    = parseInt(formData.get("max_capacity") as string);
   const durationHours  = parseFloat(formData.get("duration_hours") as string);
-  const photosRaw      = formData.get("photos") as string;
-  const photos         = photosRaw
-    ? photosRaw.split("\n").map((p) => p.trim()).filter(Boolean)
-    : null;
+  const photos         = (formData.getAll("photo_urls") as string[]).filter(Boolean);
 
   const { error } = await supabase
     .from("excursions")
