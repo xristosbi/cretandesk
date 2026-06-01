@@ -1,9 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
-import { MapPin, Phone } from "lucide-react";
+import { createServiceClient } from "@/lib/supabase/service";
+import { MapPin, Phone, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { getAreaLabel } from "@/lib/constants/areas";
 
-const areaLabels: Record<string, string> = {
-  heraklion: "Ηράκλειο", chania: "Χανιά", rethymno: "Ρέθυμνο", lasithi: "Λασίθι",
+type Partner = {
+  id: string;
+  business_name: string;
+  phone: string | null;
+  description: string | null;
+  areas: string[] | null;
 };
 
 export default async function AgencyPartnersPage() {
@@ -11,51 +17,155 @@ export default async function AgencyPartnersPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: connections } = await supabase
+  // Agency's current connections (regular client — RLS allows agency_id = auth.uid())
+  const { data: connRows } = await supabase
     .from("partner_agency_connections")
-    .select(`partner_id, partners(business_name, phone, description, areas)`)
-    .eq("agency_id", user.id)
-    .eq("status", "approved");
+    .select("partner_id")
+    .eq("agency_id", user.id);
+
+  const connectedIds = new Set((connRows ?? []).map((r) => r.partner_id));
+
+  // All approved partners — service client because RLS only exposes connected ones
+  const service = createServiceClient();
+  const { data: allPartners } = await service
+    .from("partners")
+    .select("id, business_name, phone, description, areas")
+    .eq("approved", true)
+    .order("business_name");
+
+  const partners = (allPartners ?? []) as Partner[];
+  const connected   = partners.filter((p) => connectedIds.has(p.id));
+  const unconnected = partners.filter((p) => !connectedIds.has(p.id));
+
+  // Excursion counts for connected partners
+  const excursionCounts: Record<string, number> = {};
+  if (connected.length > 0) {
+    const { data: exCounts } = await service
+      .from("excursions")
+      .select("partner_id")
+      .in("partner_id", connected.map((p) => p.id))
+      .eq("active", true);
+
+    (exCounts ?? []).forEach((row) => {
+      excursionCounts[row.partner_id] = (excursionCounts[row.partner_id] ?? 0) + 1;
+    });
+  }
 
   return (
     <div className="p-8">
       <div className="mb-6">
         <h1 className="font-display text-2xl font-bold text-navy">Συνεργάτες</h1>
-        <p className="text-muted text-sm mt-1">{connections?.length ?? 0} πάροχοι</p>
+        <p className="text-muted text-sm mt-1">
+          {connected.length} ενεργές συνεργασίες · {unconnected.length} άλλοι πάροχοι
+        </p>
       </div>
 
-      {!connections?.length ? (
-        <div className="bg-card border border-border rounded-xl p-16 text-center text-muted">
-          <MapPin className="h-8 w-8 mx-auto mb-2" />
-          Δεν υπάρχουν συνδεδεμένοι πάροχοι ακόμα.
+      {/* ── Connected partners ── */}
+      <section className="mb-8">
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="text-sm font-semibold text-navy uppercase tracking-wider">
+            Ενεργές Συνεργασίες
+          </h2>
+          <Badge variant="outline" className="text-success border-success/40 bg-success/5">
+            {connected.length}
+          </Badge>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {connections.map((c) => {
-            const p = c.partners as { business_name: string; phone: string | null; description: string | null; areas: string[] | null } | null;
-            return (
-              <div key={c.partner_id} className="bg-card border border-border rounded-xl shadow-sm p-5 space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-5 w-5 text-gold" />
-                  </div>
-                  <p className="font-semibold text-navy">{p?.business_name ?? "—"}</p>
-                </div>
-                {p?.phone && (
-                  <div className="flex items-center gap-2 text-sm text-muted">
-                    <Phone className="h-3.5 w-3.5" />{p.phone}
-                  </div>
-                )}
-                {p?.description && <p className="text-xs text-muted line-clamp-2">{p.description}</p>}
-                {p?.areas?.length ? (
-                  <div className="flex flex-wrap gap-1">
-                    {p.areas.map(a => <Badge key={a} variant="outline">{areaLabels[a] ?? a}</Badge>)}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
+
+        {connected.length === 0 ? (
+          <div className="bg-card border border-border rounded-xl p-10 text-center text-muted text-sm">
+            Δεν υπάρχουν ενεργές συνεργασίες ακόμα. Επικοινωνήστε με τους παρόχους που σας ενδιαφέρουν.
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {connected.map((partner) => (
+              <PartnerCard
+                key={partner.id}
+                partner={partner}
+                excursionCount={excursionCounts[partner.id] ?? 0}
+                connected
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── Unconnected (discoverable) partners ── */}
+      {unconnected.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">
+              Άλλοι Πάροχοι
+            </h2>
+            <Badge variant="outline">{unconnected.length}</Badge>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {unconnected.map((partner) => (
+              <PartnerCard key={partner.id} partner={partner} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function PartnerCard({
+  partner,
+  excursionCount,
+  connected = false,
+}: {
+  partner: Partner;
+  excursionCount?: number;
+  connected?: boolean;
+}) {
+  return (
+    <div className={`bg-card border rounded-xl shadow-sm p-5 flex flex-col gap-3 ${
+      connected ? "border-success/30" : "border-border opacity-75"
+    }`}>
+      <div className="flex items-start gap-3">
+        <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${
+          connected ? "bg-gold/10" : "bg-muted/10"
+        }`}>
+          <MapPin className={`h-5 w-5 ${connected ? "text-gold" : "text-muted"}`} />
         </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-navy">{partner.business_name}</p>
+          {connected && excursionCount !== undefined && (
+            <p className="text-xs text-muted">{excursionCount} ενεργές εκδρομές</p>
+          )}
+        </div>
+        {connected ? (
+          <Badge className="shrink-0 bg-success/10 text-success border-success/30 text-xs">
+            Συνεργάτης
+          </Badge>
+        ) : (
+          <span className="shrink-0 flex items-center gap-1 text-xs text-muted">
+            <Lock className="h-3 w-3" />Χωρίς σύνδεση
+          </span>
+        )}
+      </div>
+
+      {partner.phone && (
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <Phone className="h-3.5 w-3.5 shrink-0" />
+          {partner.phone}
+        </div>
+      )}
+      {partner.description && (
+        <p className="text-xs text-muted line-clamp-2">{partner.description}</p>
+      )}
+      {partner.areas && partner.areas.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {partner.areas.map((a) => (
+            <Badge key={a} variant="outline" className="text-xs">{getAreaLabel(a)}</Badge>
+          ))}
+        </div>
+      )}
+
+      {!connected && (
+        <p className="text-xs text-muted bg-background rounded-lg px-3 py-2">
+          Επικοινωνήστε με τον πάροχο για να σας προσθέσει ως συνεργαζόμενο γραφείο.
+        </p>
       )}
     </div>
   );
