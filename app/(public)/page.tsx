@@ -283,8 +283,8 @@ export default function LandingPage() {
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          src="https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1249-large.mp4"
-          poster="https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1249-large.jpg"
+          src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-beach-with-crystal-clear-water-41826-large.mp4"
+          poster="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-beach-with-crystal-clear-water-41826-large.jpg"
         />
 
         {/* Dark navy overlay */}
@@ -340,15 +340,13 @@ export default function LandingPage() {
               </Button>
             </Link>
             <Link href="/register/partner">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-white hover:bg-white/10 hover:text-white px-9 text-base h-14"
-                style={{ borderColor: "rgba(255,255,255,0.45)" }}
+              <button
+                className="inline-flex items-center justify-center gap-2 px-9 text-base h-14 rounded-md font-medium text-white transition-colors duration-200 hover:bg-white/10"
+                style={{ border: "1.5px solid rgba(255,255,255,0.60)" }}
               >
                 Είμαι Πάροχος Εμπειριών
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
+                <ArrowRight className="h-5 w-5" />
+              </button>
             </Link>
           </div>
         </div>
