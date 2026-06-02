@@ -64,7 +64,16 @@ export default async function PartnerPaymentsPage() {
                     <td className="px-5 py-4">
                       <Badge variant={f.paid ? "accepted" : "pending"}>{f.paid ? "Πληρώθηκε" : "Εκκρεμεί"}</Badge>
                     </td>
-                    <td className="px-5 py-4 text-muted font-mono text-xs">{f.stripe_invoice_id ?? "—"}</td>
+                    <td className="px-5 py-4 font-mono text-xs">
+                      {f.stripe_invoice_id
+                        ? <a href={`https://dashboard.stripe.com/invoices/${f.stripe_invoice_id}`}
+                             target="_blank" rel="noreferrer"
+                             className="text-navy underline underline-offset-2 hover:text-gold transition-colors">
+                            {f.stripe_invoice_id.slice(0, 14)}…
+                          </a>
+                        : <span className="text-muted">—</span>
+                      }
+                    </td>
                   </tr>
                 ))}
               </tbody>

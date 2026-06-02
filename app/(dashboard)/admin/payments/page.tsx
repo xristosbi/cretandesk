@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CreditCard } from "lucide-react";
+import { InvoiceActions } from "./InvoiceActions";
 
 export default async function AdminPaymentsPage() {
   const supabase = await createClient();
@@ -21,6 +22,8 @@ export default async function AdminPaymentsPage() {
         <h1 className="font-display text-2xl font-bold text-navy">Πληρωμές</h1>
         <p className="text-muted text-sm mt-1">Χρεώσεις υπηρεσίας όλων των παρόχων</p>
       </div>
+
+      <InvoiceActions />
 
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-xl p-5">
@@ -68,7 +71,16 @@ export default async function AdminPaymentsPage() {
                       <td className="px-5 py-4">
                         <Badge variant={f.paid ? "accepted" : "pending"}>{f.paid ? "Πληρώθηκε" : "Εκκρεμεί"}</Badge>
                       </td>
-                      <td className="px-5 py-4 text-muted font-mono text-xs">{f.stripe_invoice_id ?? "—"}</td>
+                      <td className="px-5 py-4 font-mono text-xs">
+                        {f.stripe_invoice_id
+                          ? <a href={`https://dashboard.stripe.com/invoices/${f.stripe_invoice_id}`}
+                               target="_blank" rel="noreferrer"
+                               className="text-navy underline underline-offset-2 hover:text-gold transition-colors">
+                              {f.stripe_invoice_id.slice(0, 14)}…
+                            </a>
+                          : <span className="text-muted">—</span>
+                        }
+                      </td>
                       <td className="px-5 py-4 text-muted whitespace-nowrap">{formatDate(f.created_at)}</td>
                     </tr>
                   );
