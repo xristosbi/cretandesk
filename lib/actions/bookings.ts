@@ -5,7 +5,15 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
-export async function acceptBooking(bookingId: string) {
+type BookingActionState = { error: string | null };
+
+export async function acceptBooking(
+  _prev: BookingActionState,
+  formData: FormData
+): Promise<BookingActionState> {
+  const bookingId = formData.get("bookingId") as string;
+  if (!bookingId) return { error: "Λείπει το ID κράτησης." };
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -13,12 +21,19 @@ export async function acceptBooking(bookingId: string) {
     .update({ status: "accepted", updated_at: new Date().toISOString() })
     .eq("id", bookingId);
 
-  if (error) throw new Error(error.message);
+  if (error) return { error: error.message };
 
   revalidatePath("/partner/bookings");
+  return { error: null };
 }
 
-export async function declineBooking(bookingId: string) {
+export async function declineBooking(
+  _prev: BookingActionState,
+  formData: FormData
+): Promise<BookingActionState> {
+  const bookingId = formData.get("bookingId") as string;
+  if (!bookingId) return { error: "Λείπει το ID κράτησης." };
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -26,34 +41,38 @@ export async function declineBooking(bookingId: string) {
     .update({ status: "rejected", updated_at: new Date().toISOString() })
     .eq("id", bookingId);
 
-  if (error) throw new Error(error.message);
+  if (error) return { error: error.message };
 
   revalidatePath("/partner/bookings");
+  return { error: null };
 }
 
-export async function completeBooking(bookingId: string) {
+export async function completeBooking(
+  _prev: BookingActionState,
+  formData: FormData
+): Promise<BookingActionState> {
+  const bookingId = formData.get("bookingId") as string;
+  if (!bookingId) return { error: "Λείπει το ID κράτησης." };
+
   const supabase = await createClient();
 
-  // Fetch the booking to get total_persons and partner_id
   const { data: booking, error: fetchError } = await supabase
     .from("bookings")
     .select("id, total_persons, partner_id, status")
     .eq("id", bookingId)
     .single();
 
-  if (fetchError || !booking) throw new Error("Booking not found");
+  if (fetchError || !booking) return { error: "Η κράτηση δεν βρέθηκε." };
 
-  // Update booking status
   const { error: updateError } = await supabase
     .from("bookings")
     .update({ status: "completed", updated_at: new Date().toISOString() })
     .eq("id", bookingId);
 
-  if (updateError) throw new Error(updateError.message);
+  if (updateError) return { error: updateError.message };
 
-  // Insert service fee using service client (bypasses RLS)
   const serviceClient = createServiceClient();
-  const period = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+  const period = new Date().toISOString().slice(0, 7);
   const amount = booking.total_persons * 0.5;
 
   const { error: feeError } = await serviceClient.from("service_fees").insert({
@@ -65,10 +84,11 @@ export async function completeBooking(bookingId: string) {
     paid:       false,
   });
 
-  if (feeError) throw new Error(feeError.message);
+  if (feeError) return { error: feeError.message };
 
   revalidatePath("/partner/bookings");
   revalidatePath("/partner/payments");
+  return { error: null };
 }
 
 export async function createBooking(_prev: { error: string | null }, formData: FormData): Promise<{ error: string | null }> {

@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
-import { Button } from "@/components/ui/button";
-import { acceptBooking, declineBooking, completeBooking } from "@/lib/actions/bookings";
+import { BookingActions } from "./BookingActions";
 import { formatDate } from "@/lib/utils";
 import type { BookingStatus } from "@/types/database";
 
@@ -72,23 +71,7 @@ export default async function PartnerBookingsPage() {
                       <td className="px-5 py-4"><BookingStatusBadge status={b.status as BookingStatus} /></td>
                       <td className="px-5 py-4 text-muted max-w-[150px] truncate">{b.notes ?? "—"}</td>
                       <td className="px-5 py-4">
-                        <div className="flex gap-2">
-                          {b.status === "pending" && (
-                            <>
-                              <form action={acceptBooking.bind(null, b.id)}>
-                                <Button type="submit" size="sm" className="text-xs">Αποδοχή</Button>
-                              </form>
-                              <form action={declineBooking.bind(null, b.id)}>
-                                <Button type="submit" size="sm" variant="destructive" className="text-xs">Απόρριψη</Button>
-                              </form>
-                            </>
-                          )}
-                          {b.status === "accepted" && (
-                            <form action={completeBooking.bind(null, b.id)}>
-                              <Button type="submit" size="sm" variant="outline" className="text-xs">Ολοκλήρωση</Button>
-                            </form>
-                          )}
-                        </div>
+                        <BookingActions bookingId={b.id} status={b.status} />
                       </td>
                     </tr>
                   );
