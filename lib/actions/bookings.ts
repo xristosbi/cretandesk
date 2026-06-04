@@ -221,3 +221,27 @@ export async function createBooking(
 
   return { error: null };
 }
+
+export async function cancelBooking(
+  _prev: BookingActionState,
+  formData: FormData
+): Promise<BookingActionState> {
+  const bookingId = formData.get("bookingId") as string;
+  if (!bookingId) return { error: "Λείπει το ID κράτησης." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Μη εξουσιοδοτημένο." };
+
+  const { error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId)
+    .eq("agency_id", user.id)
+    .eq("status", "pending");
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/agency");
+  return { error: null };
+}
