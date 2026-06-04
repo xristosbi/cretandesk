@@ -5,13 +5,12 @@ import Link from "next/link";
 import {
   Anchor, Mountain, Wind, UtensilsCrossed, Landmark, Crown, Sparkles,
   ArrowRight, Users, MapPin, CalendarCheck, UserPlus, Link2, ChevronDown,
-  Shield, Clock, BarChart3, Zap, Globe,
+  Shield, Clock, BarChart3, Zap, Globe, CheckCircle2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-// ─── Animation helpers ────────────────────────────────────────────
+// ─── Animation ────────────────────────────────────────────────────
 
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -27,7 +26,7 @@ function useInView(threshold = 0.15) {
   return { ref, inView };
 }
 
-function useCounter(target: number, active: boolean, duration = 1800) {
+function useCounter(target: number, active: boolean, duration = 2000) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (!active) return;
@@ -43,24 +42,27 @@ function useCounter(target: number, active: boolean, duration = 1800) {
   return val;
 }
 
-function FadeIn({
-  children,
-  delay = 0,
-  className = "",
-}: {
+type FadeProps = {
   children: React.ReactNode;
   delay?: number;
   className?: string;
-}) {
+  direction?: "up" | "left" | "right";
+};
+
+function FadeIn({ children, delay = 0, className = "", direction = "up" }: FadeProps) {
   const { ref, inView } = useInView();
+  const startTransform =
+    direction === "left"  ? "translateX(-40px)" :
+    direction === "right" ? "translateX(40px)"  :
+                            "translateY(40px)";
   return (
     <div
       ref={ref}
       className={className}
       style={{
         opacity: inView ? 1 : 0,
-        transform: inView ? "translateY(0)" : "translateY(28px)",
-        transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+        transform: inView ? "translate(0,0)" : startTransform,
+        transition: `opacity 0.75s ease ${delay}ms, transform 0.75s ease ${delay}ms`,
       }}
     >
       {children}
@@ -68,7 +70,7 @@ function FadeIn({
   );
 }
 
-// ─── Data ────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────
 
 const categories = [
   { key: "sea",        label: "Θαλάσσια",   icon: Anchor,          bg: "#EFF6FF", color: "#2563EB" },
@@ -83,23 +85,39 @@ const categories = [
 const features = [
   {
     icon: Shield,
+    accent: "#1B3A5C",
+    accentLight: "#EEF2F7",
     title: "Εγκεκριμένοι Πάροχοι",
-    desc: "Μόνο ελεγμένοι και εγκεκριμένοι πάροχοι. Εγγυημένη ποιότητα και αξιοπιστία για κάθε εκδρομή.",
+    subtitle: "Εμπιστοσύνη σε κάθε σχέση",
+    desc: "Μόνο ελεγμένοι και εγκεκριμένοι πάροχοι εμπειριών έχουν πρόσβαση στην πλατφόρμα. Κάθε συνεργασία ξεκινά με έλεγχο ταυτότητας και έγκριση από τη διαχείριση.",
+    points: ["Αξιολόγηση πριν την έγκριση", "Πλήρη στοιχεία επιχείρησης", "Σύστημα αξιολόγησης"],
   },
   {
     icon: Clock,
+    accent: "#E8A020",
+    accentLight: "#FFFBEB",
     title: "Κρατήσεις σε Πραγματικό Χρόνο",
-    desc: "Ζωντανή διαθεσιμότητα. Άμεση αποδοχή ή άρνηση κράτησης απευθείας από τον πάροχο.",
+    subtitle: "Μηδέν καθυστέρηση, άμεση απόκριση",
+    desc: "Ζωντανό ημερολόγιο διαθεσιμότητας. Αίτημα κράτησης — αποδοχή ή άρνηση από τον πάροχο — και αυτόματη email ειδοποίηση σε δευτερόλεπτα.",
+    points: ["Ζωντανή διαθεσιμότητα ανά ημέρα", "Αυτόματες ειδοποιήσεις email", "Ιστορικό κρατήσεων ανά ρόλο"],
   },
   {
     icon: BarChart3,
+    accent: "#2D9B6F",
+    accentLight: "#ECFDF5",
     title: "Αναλυτικά Στατιστικά",
-    desc: "Dashboard με KPIs, ιστορικό κρατήσεων και αναφορές εσόδων για κάθε ρόλο.",
+    subtitle: "Αποφάσεις βασισμένες σε δεδομένα",
+    desc: "Dashboard με όλες τις μετρήσεις που χρειάζεσαι: κρατήσεις, έσοδα, ενεργοί πάροχοι, μηνιαία τάση. Για κάθε ρόλο, το σωστό επίπεδο ανάλυσης.",
+    points: ["KPIs σε πραγματικό χρόνο", "Αναφορές ανά περίοδο", "Σύγκριση μηνών"],
   },
   {
     icon: Zap,
+    accent: "#7C3AED",
+    accentLight: "#F5F3FF",
     title: "Αυτόματη Τιμολόγηση",
-    desc: "Μηνιαία εκκαθάριση μέσω Stripe. Χωρίς χαρτί, χωρίς καθυστέρηση, χωρίς λάθη.",
+    subtitle: "Stripe-powered, χωρίς χαρτί",
+    desc: "Μηνιαία εκκαθάριση 0,50€ ανά άτομο — δημιουργία Stripe Invoice, αποστολή email πληρωμής και παρακολούθηση εξόφλησης. Τίποτα δεν χάνεται.",
+    points: ["Αυτόματη δημιουργία τιμολογίου", "Stripe Invoice & webhook", "Dashboard πληρωμών"],
   },
 ];
 
@@ -108,113 +126,188 @@ const steps = [
     num: "01",
     icon: UserPlus,
     title: "Εγγραφή",
-    desc: "Δημιούργησε λογαριασμό ως τουριστικό γραφείο ή πάροχος. Ο διαχειριστής εγκρίνει τον λογαριασμό σου.",
+    desc: "Δημιούργησε λογαριασμό ως τουριστικό γραφείο ή πάροχος εμπειριών. Ο διαχειριστής ελέγχει και εγκρίνει κάθε νέο λογαριασμό.",
   },
   {
     num: "02",
     icon: Link2,
     title: "Σύνδεση",
-    desc: "Οι πάροχοι επιλέγουν με ποια γραφεία συνεργάζονται. Αξιόπιστες B2B σχέσεις.",
+    desc: "Οι πάροχοι επιλέγουν με ποια τουριστικά γραφεία συνεργάζονται. Αξιόπιστες, εγκεκριμένες B2B σχέσεις.",
   },
   {
     num: "03",
     icon: CalendarCheck,
     title: "Κράτηση",
-    desc: "Κάνε αίτημα κράτησης, ο πάροχος αποδέχεται και η χρέωση γίνεται αυτόματα.",
+    desc: "Αίτημα κράτησης από το γραφείο, αποδοχή από τον πάροχο, και η χρέωση γίνεται αυτόματα — χωρίς τηλέφωνα.",
   },
 ];
 
 const statsData = [
-  { target: 120,  suffix: "+",  label: "Συνεργάτες", icon: Users },
-  { target: 480,  suffix: "+",  label: "Εκδρομές",   icon: MapPin },
-  { target: 3200, suffix: "+",  label: "Κρατήσεις",  icon: CalendarCheck },
-  { target: 4,    suffix: "",   label: "Περιοχές",   icon: Globe },
+  { target: 120,  suffix: "+", label: "Συνεργάτες" },
+  { target: 480,  suffix: "+", label: "Εκδρομές" },
+  { target: 3200, suffix: "+", label: "Κρατήσεις" },
+  { target: 4,    suffix: "",  label: "Περιοχές" },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────
+// ─── Dashboard Mockup ─────────────────────────────────────────────
 
-function HowItWorksSteps() {
-  const { ref, inView } = useInView(0.2);
+function DashboardMockup() {
   return (
-    <div ref={ref} className="relative">
-      {/* Animated connector line */}
-      <div className="hidden md:block absolute top-7 left-0 right-0 h-px overflow-hidden">
-        <div
-          style={{
-            height: "1px",
-            background: "linear-gradient(to right, transparent 8%, #E8A020 30%, #E8A020 70%, transparent 92%)",
-            width: inView ? "100%" : "0%",
-            transition: "width 1.3s ease 0.4s",
-          }}
-        />
+    <div style={{
+      borderRadius: 16,
+      overflow: "hidden",
+      boxShadow: "0 50px 140px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)",
+      maxWidth: 900,
+      margin: "0 auto",
+    }}>
+      {/* Browser chrome */}
+      <div style={{ background: "#111827", padding: "10px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", gap: 5 }}>
+          {["#FF5F57","#FFBD2E","#28CA41"].map(c => (
+            <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />
+          ))}
+        </div>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", borderRadius: 5, padding: "3px 10px", fontSize: 11, color: "rgba(255,255,255,0.28)", textAlign: "center", letterSpacing: "0.01em" }}>
+          app.cretandesk.gr/partner
+        </div>
+        <div style={{ width: 60 }} />
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {steps.map(({ num, icon: Icon, title, desc }, i) => (
-          <div
-            key={num}
-            className="flex flex-col items-center text-center"
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? "translateY(0)" : "translateY(32px)",
-              transition: `opacity 0.6s ease ${i * 180 + 400}ms, transform 0.6s ease ${i * 180 + 400}ms`,
-            }}
-          >
-            {/* Step icon circle */}
-            <div className="relative mb-8 z-10">
-              <div className="h-14 w-14 rounded-full bg-white border-2 border-navy/15 shadow-lg flex items-center justify-center">
-                <Icon className="h-6 w-6 text-navy" />
-              </div>
-              <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-gold flex items-center justify-center text-xs font-bold text-white shadow-md">
-                {i + 1}
-              </div>
-            </div>
+      {/* Dashboard */}
+      <div style={{ display: "flex", background: "#F4F6F9", height: 400 }}>
 
-            <div className="bg-white border border-border rounded-2xl px-7 py-8 w-full shadow-sm hover:shadow-md transition-shadow duration-300">
-              <div
-                className="font-display text-5xl font-bold leading-none mb-3 select-none"
-                style={{ color: "#1B3A5C", opacity: 0.07 }}
-              >
-                {num}
-              </div>
-              <h3 className="font-display text-xl font-semibold text-navy mb-3">{title}</h3>
-              <p className="text-muted text-sm leading-relaxed">{desc}</p>
-            </div>
+        {/* Sidebar */}
+        <div style={{ width: 188, background: "#1B3A5C", flexShrink: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "16px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <span style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: "white", fontSize: 14 }}>
+              Cretan<span style={{ color: "#E8A020" }}>Desk</span>
+            </span>
           </div>
-        ))}
+          <div style={{ padding: "10px 0", flex: 1 }}>
+            {[
+              { label: "Επισκόπηση",  active: true },
+              { label: "Εκδρομές",   active: false },
+              { label: "Κρατήσεις",  active: false },
+              { label: "Γραφεία",    active: false },
+              { label: "Πληρωμές",   active: false },
+            ].map(item => (
+              <div key={item.label} style={{
+                padding: "7px 16px",
+                margin: "1px 8px",
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: 500,
+                background: item.active ? "rgba(232,160,32,0.14)" : "transparent",
+                color: item.active ? "#E8A020" : "rgba(255,255,255,0.45)",
+              }}>
+                {item.label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div style={{ flex: 1, padding: 16, overflow: "hidden" }}>
+          {/* Greeting */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1B3A5C" }}>Καλημέρα, Aegean Cruises</div>
+            <div style={{ fontSize: 10, color: "#9CA3AF" }}>Επισκόπηση κρατήσεών σου</div>
+          </div>
+
+          {/* Stat cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 12 }}>
+            {[
+              { val: "124", label: "Κρατήσεις",  delta: "+12%" },
+              { val: "48",  label: "Γραφεία",    delta: "+3" },
+              { val: "€640",label: "Έσοδα μήνα", delta: "+8%" },
+            ].map(s => (
+              <div key={s.label} style={{ background: "white", borderRadius: 10, padding: "12px 13px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                <div style={{ fontSize: 19, fontWeight: 800, color: "#1B3A5C", lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 3 }}>{s.label}</div>
+                <div style={{ fontSize: 9, color: "#2D9B6F", marginTop: 2, fontWeight: 600 }}>{s.delta}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Booking list */}
+          <div style={{ background: "white", borderRadius: 10, padding: "12px 14px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#1B3A5C", marginBottom: 10 }}>Τελευταίες Κρατήσεις</div>
+            {[
+              { agency: "Sunlight Travel",   excursion: "Κρήτη: Σπηλαιοβύθιση Ρεθύμνου",  status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
+              { agency: "Blue Aegean Tours", excursion: "Ναυτικό Ηλιοβασίλεμα Σφακίων",   status: "Αναμονή",   sb: "#FEF3C7", sc: "#92400E" },
+              { agency: "Paradise Routes",   excursion: "Γαστρονομική Περιήγηση Χανίων",  status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
+            ].map((row, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "7px 0",
+                borderBottom: i < 2 ? "1px solid #F3F4F6" : "none",
+              }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#1B3A5C" }}>{row.agency}</div>
+                  <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 1 }}>{row.excursion}</div>
+                </div>
+                <div style={{ padding: "2px 8px", borderRadius: 4, background: row.sb, color: row.sc, fontSize: 10, fontWeight: 600, whiteSpace: "nowrap" }}>
+                  {row.status}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCounter({
-  target,
-  suffix,
-  label,
-  icon: Icon,
-}: {
-  target: number;
-  suffix: string;
-  label: string;
-  icon: React.ElementType;
-}) {
+// ─── How It Works Steps ───────────────────────────────────────────
+
+function HowItWorksSteps() {
+  const { ref, inView } = useInView(0.15);
+  return (
+    <div ref={ref} className="grid md:grid-cols-3 gap-0 md:divide-x md:divide-white/10">
+      {steps.map(({ num, title, desc }, i) => (
+        <div
+          key={num}
+          className="px-10 py-8 md:py-0 first:pl-0 last:pr-0"
+          style={{
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(48px)",
+            transition: `opacity 0.7s ease ${i * 160 + 200}ms, transform 0.7s ease ${i * 160 + 200}ms`,
+          }}
+        >
+          <div
+            className="font-display font-bold leading-none mb-6 select-none"
+            style={{ fontSize: "clamp(4.5rem, 9vw, 8rem)", color: "#E8A020", opacity: 0.9 }}
+          >
+            {num}
+          </div>
+          <h3 className="font-display text-2xl font-bold text-navy mb-4">{title}</h3>
+          <p className="text-muted text-base leading-relaxed">{desc}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Stat counter ─────────────────────────────────────────────────
+
+function StatCounter({ target, suffix, label }: { target: number; suffix: string; label: string }) {
   const { ref, inView } = useInView(0.3);
   const val = useCounter(target, inView);
   return (
-    <div ref={ref} className="text-center">
-      <div className="flex justify-center mb-5">
-        <div className="h-16 w-16 rounded-2xl bg-white/8 border border-white/10 flex items-center justify-center">
-          <Icon className="h-8 w-8 text-gold" />
-        </div>
-      </div>
+    <div ref={ref} className="text-center" style={{
+      opacity: inView ? 1 : 0,
+      transform: inView ? "translateY(0)" : "translateY(32px)",
+      transition: "opacity 0.7s ease, transform 0.7s ease",
+    }}>
       <div
-        className="font-display text-5xl font-bold text-white mb-2"
-        style={{ opacity: inView ? 1 : 0, transition: "opacity 0.5s ease 0.3s" }}
+        className="font-display font-bold leading-none mb-3"
+        style={{ fontSize: "clamp(3.5rem, 7vw, 6rem)", color: "#E8A020" }}
       >
-        {target >= 1000 ? val.toLocaleString("el-GR") : val}
-        {suffix}
+        {target >= 1000 ? val.toLocaleString("el-GR") : val}{suffix}
       </div>
-      <div className="text-white/50 text-sm font-medium uppercase tracking-widest">{label}</div>
+      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+        {label}
+      </div>
     </div>
   );
 }
@@ -231,195 +324,290 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col" style={{ background: "#FAFBFC" }}>
 
       {/* ── Header ── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
+        className="fixed top-0 left-0 right-0 z-50"
         style={{
-          background: scrolled ? "rgba(255,255,255,0.96)" : "transparent",
-          backdropFilter: scrolled ? "blur(8px)" : "none",
-          boxShadow: scrolled ? "0 1px 0 #E2E8F0" : "none",
+          background: scrolled ? "rgba(255,255,255,0.97)" : "transparent",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
+          boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.08)" : "none",
+          transition: "background 0.3s, box-shadow 0.3s",
         }}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: 72 }}>
           <Link href="/">
             <span
-              className="font-display text-2xl font-bold transition-colors duration-300"
-              style={{ color: scrolled ? "#1B3A5C" : "#ffffff" }}
+              className="font-display text-2xl font-bold"
+              style={{ color: scrolled ? "#1B3A5C" : "#fff", transition: "color 0.3s" }}
             >
-              Cretan<span className="text-gold">Desk</span>
+              Cretan<span style={{ color: "#E8A020" }}>Desk</span>
             </span>
           </Link>
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2">
             <Link href="/login">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="transition-colors duration-300"
+              <span
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{ color: scrolled ? "#1B3A5C" : "rgba(255,255,255,0.85)" }}
               >
                 Σύνδεση
-              </Button>
+              </span>
             </Link>
-            <Link href="/register/agency">
-              <Button
-                size="sm"
-                className="bg-gold hover:bg-gold-dark text-white shadow-sm font-medium"
-              >
-                Εγγραφή
-              </Button>
-            </Link>
+            <a
+              href="/register/agency"
+              style={{
+                display: "inline-block",
+                background: "#E8A020",
+                color: "white",
+                padding: "8px 20px",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Εγγραφή
+            </a>
           </nav>
         </div>
       </header>
 
-      {/* ── 1. HERO ── */}
+      {/* ══════════════════════════════════════════════════════════════
+          1. HERO
+      ══════════════════════════════════════════════════════════════ */}
       <section
-        className="relative flex items-center justify-center overflow-hidden"
         style={{
-          height: "100svh",
-          minHeight: 600,
+          position: "relative",
           backgroundImage: "url('https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?w=1920&q=80')",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          paddingTop: 160,
+          paddingBottom: 100,
         }}
       >
-        {/* Dark overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />
+        {/* Overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(170deg, rgba(10,20,40,0.82) 0%, rgba(20,40,70,0.72) 50%, rgba(10,20,40,0.88) 100%)" }} />
+        {/* Bottom fade */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 120, background: "linear-gradient(to top, #FAFBFC, transparent)" }} />
 
-        {/* Bottom fade into page bg */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-36"
-          style={{ background: "linear-gradient(to top, #F7F8FA, transparent)" }}
-        />
-
-        {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-8"
-            style={{
-              background: "rgba(232,160,32,0.18)",
-              border: "1px solid rgba(232,160,32,0.45)",
-              color: "#E8A020",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Crete&apos;s Experience Marketplace
+        <div className="relative max-w-5xl mx-auto px-6 text-center">
+          {/* Eyebrow */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            background: "rgba(232,160,32,0.15)", border: "1px solid rgba(232,160,32,0.4)",
+            color: "#E8A020", borderRadius: 100, padding: "6px 16px",
+            fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
+            marginBottom: 32, backdropFilter: "blur(4px)",
+          }}>
+            <Sparkles style={{ width: 12, height: 12 }} />
+            Crete&apos;s B2B Experience Marketplace
           </div>
 
+          {/* Main headline */}
           <h1
-            className="font-display font-bold text-white leading-tight mb-6"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}
+            className="font-display font-bold text-white"
+            style={{
+              fontSize: "clamp(3rem, 7vw, 6.5rem)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              marginBottom: 28,
+              textShadow: "0 4px 30px rgba(0,0,0,0.4)",
+            }}
           >
             Η πλατφόρμα που συνδέει τα{" "}
-            <span className="text-gold">τουριστικά γραφεία</span>{" "}
+            <span style={{ color: "#E8A020" }}>τουριστικά γραφεία</span>{" "}
             με τις εμπειρίες της Κρήτης
           </h1>
 
-          <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Κρατήσεις εκδρομών σε πραγματικό χρόνο. Διαχείριση διαθεσιμότητας.
-            Αυτόματες χρεώσεις. Όλα σε ένα μέρος.
+          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "clamp(1rem, 2vw, 1.2rem)", lineHeight: 1.7, maxWidth: 600, margin: "0 auto 44px" }}>
+            Κρατήσεις σε πραγματικό χρόνο. Διαχείριση διαθεσιμότητας.
+            Αυτόματη τιμολόγηση Stripe. Όλα σε ένα B2B dashboard.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register/agency">
-              <Button
-                size="lg"
-                className="bg-gold hover:bg-gold-dark text-white font-semibold px-9 text-base h-14 shadow-2xl"
-                style={{ boxShadow: "0 8px 32px rgba(232,160,32,0.35)" }}
-              >
-                Είμαι Τουριστικό Γραφείο
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-            </Link>
+          {/* CTAs */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginBottom: 72 }}>
+            <a
+              href="/register/agency"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "#E8A020", color: "white",
+                padding: "15px 36px", borderRadius: 10,
+                fontSize: 16, fontWeight: 700, textDecoration: "none",
+                boxShadow: "0 8px 32px rgba(232,160,32,0.4)",
+                transition: "transform 0.2s",
+              }}
+            >
+              Είμαι Τουριστικό Γραφείο
+              <ArrowRight style={{ width: 18, height: 18 }} />
+            </a>
             <a
               href="/register/partner"
-              style={{ display: "inline-block", border: "2px solid white", color: "white", background: "transparent", padding: "12px 32px", borderRadius: "8px", fontWeight: 500, fontSize: "16px", textDecoration: "none" }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "transparent", color: "white",
+                border: "2px solid rgba(255,255,255,0.5)",
+                padding: "15px 36px", borderRadius: 10,
+                fontSize: 16, fontWeight: 600, textDecoration: "none",
+              }}
             >
-              Εγγραφή ως Συνεργάτης →
+              Είμαι Πάροχος Εμπειριών
+              <ArrowRight style={{ width: 18, height: 18 }} />
             </a>
           </div>
+
+          {/* Dashboard mockup */}
+          <DashboardMockup />
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/40 animate-bounce">
-          <span className="text-xs tracking-[0.2em] uppercase font-medium">Scroll</span>
-          <ChevronDown className="h-4 w-4" />
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce" style={{ color: "rgba(255,255,255,0.3)" }}>
+          <span style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>Scroll</span>
+          <ChevronDown style={{ width: 16, height: 16 }} />
         </div>
       </section>
 
-      {/* ── 2. HOW IT WORKS ── */}
-      <section className="py-24 bg-[#F7F8FA]">
-        <div className="max-w-6xl mx-auto px-6">
-          <FadeIn className="text-center mb-16">
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Πώς Λειτουργεί</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-navy mt-3 mb-4 leading-tight">
-              Τρία απλά βήματα
+      {/* ══════════════════════════════════════════════════════════════
+          2. HOW IT WORKS
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "120px 0", background: "white" }}>
+        <div className="max-w-7xl mx-auto px-6">
+          <FadeIn className="mb-20">
+            <span style={{ color: "#E8A020", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+              Πώς Λειτουργεί
+            </span>
+            <h2
+              className="font-display font-bold text-navy"
+              style={{ fontSize: "clamp(2.25rem, 5vw, 4rem)", lineHeight: 1.1, marginTop: 12, letterSpacing: "-0.02em", maxWidth: 640 }}
+            >
+              Από την εγγραφή ως την πρώτη κράτηση σε τρία βήματα
             </h2>
-            <p className="text-muted text-lg max-w-xl mx-auto">
-              Από την εγγραφή ως την πρώτη κράτηση σε λίγα λεπτά
-            </p>
           </FadeIn>
-
           <HowItWorksSteps />
         </div>
       </section>
 
-      {/* ── 3. WHAT WE DO ── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <FadeIn className="text-center mb-16">
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Τι Κάνουμε</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-navy mt-3 mb-4 leading-tight">
-              Η πλατφόρμα για κάθε ανάγκη
-            </h2>
-            <p className="text-muted text-lg max-w-xl mx-auto">
-              Ένα ολοκληρωμένο B2B σύστημα διαχείρισης εκδρομών για την Κρήτη
-            </p>
-          </FadeIn>
+      {/* ══════════════════════════════════════════════════════════════
+          3. WHAT WE DO — alternating sections
+      ══════════════════════════════════════════════════════════════ */}
+      {features.map(({ icon: Icon, accent, accentLight, title, subtitle, desc, points }, i) => (
+        <section
+          key={title}
+          style={{ padding: "100px 0", background: i % 2 === 0 ? "#F7F9FC" : "white" }}
+        >
+          <div className="max-w-7xl mx-auto px-6">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 60,
+                alignItems: "center",
+              }}
+              className={`md:!flex-row${i % 2 === 1 ? "-reverse" : ""} md:gap-24`}
+            >
+              {/* Text */}
+              <FadeIn
+                direction={i % 2 === 0 ? "left" : "right"}
+                className="flex-1 w-full"
+              >
+                <span style={{ color: accent, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+                  0{i + 1}
+                </span>
+                <h3
+                  className="font-display font-bold text-navy"
+                  style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", lineHeight: 1.15, marginTop: 14, marginBottom: 8, letterSpacing: "-0.02em" }}
+                >
+                  {title}
+                </h3>
+                <p style={{ color: accent, fontSize: 15, fontWeight: 600, marginBottom: 20 }}>{subtitle}</p>
+                <p style={{ color: "#6B7A8D", fontSize: 17, lineHeight: 1.75, marginBottom: 28, maxWidth: 480 }}>{desc}</p>
+                <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {points.map(pt => (
+                    <li key={pt} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <CheckCircle2 style={{ width: 18, height: 18, color: accent, flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, fontWeight: 500, color: "#374151" }}>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              </FadeIn>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map(({ icon: Icon, title, desc }, i) => (
-              <FadeIn key={title} delay={i * 90}>
-                <div className="group bg-white border border-border rounded-2xl p-7 h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-navy/15 cursor-default" style={{ boxShadow: "0 1px 4px rgba(27,58,92,0.06)" }}>
-                  <div className="h-12 w-12 rounded-xl bg-navy/5 flex items-center justify-center mb-5 transition-all duration-300 group-hover:bg-navy group-hover:scale-110">
-                    <Icon className="h-6 w-6 text-navy transition-colors duration-300 group-hover:text-white" />
-                  </div>
-                  <h3 className="font-semibold text-navy text-[0.95rem] mb-2.5">{title}</h3>
-                  <p className="text-muted text-sm leading-relaxed">{desc}</p>
+              {/* Visual */}
+              <FadeIn
+                direction={i % 2 === 0 ? "right" : "left"}
+                delay={120}
+                className="flex-1 w-full"
+              >
+                <div style={{
+                  background: `linear-gradient(135deg, ${accent} 0%, ${accent}cc 100%)`,
+                  borderRadius: 24,
+                  aspectRatio: "4/3",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  boxShadow: `0 24px 80px ${accent}30`,
+                }}>
+                  {/* Decorative rings */}
+                  <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", border: `1px solid rgba(255,255,255,0.08)`, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+                  <div style={{ position: "absolute", width: 200, height: 200, borderRadius: "50%", border: `1px solid rgba(255,255,255,0.12)`, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+                  <Icon style={{ width: 80, height: 80, color: "rgba(255,255,255,0.9)", position: "relative", zIndex: 1 }} />
+                  {/* Gold accent dot */}
+                  <div style={{ position: "absolute", width: 16, height: 16, borderRadius: "50%", background: "#E8A020", bottom: 40, right: 40 }} />
+                  <div style={{ position: "absolute", width: 8, height: 8, borderRadius: "50%", background: "rgba(255,255,255,0.4)", top: 40, left: 60 }} />
                 </div>
               </FadeIn>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
-      {/* ── 4. CATEGORIES ── */}
-      <section className="py-24 bg-[#F7F8FA]">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* ══════════════════════════════════════════════════════════════
+          4. CATEGORIES
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "120px 0", background: "#F7F9FC" }}>
+        <div className="max-w-7xl mx-auto px-6">
           <FadeIn className="text-center mb-16">
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Κατηγορίες</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-navy mt-3 mb-4 leading-tight">
+            <span style={{ color: "#E8A020", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+              Κατηγορίες
+            </span>
+            <h2
+              className="font-display font-bold text-navy"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.75rem)", lineHeight: 1.1, marginTop: 12, marginBottom: 14, letterSpacing: "-0.02em" }}
+            >
               7 Κατηγορίες Εμπειριών
             </h2>
-            <p className="text-muted text-lg max-w-xl mx-auto">
-              Από θαλάσσιες περιπέτειες ως γαστρονομικές ανακαλύψεις και πολιτιστικές εξορμήσεις
+            <p style={{ color: "#6B7A8D", fontSize: 18, maxWidth: 520, margin: "0 auto" }}>
+              Από θαλάσσιες περιπέτειες ως γαστρονομικές ανακαλύψεις
             </p>
           </FadeIn>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
             {categories.map(({ key, label, icon: Icon, bg, color }, i) => (
-              <FadeIn key={key} delay={i * 60}>
-                <div className="group flex flex-col items-center gap-3.5 p-5 rounded-2xl bg-white border border-border transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-navy/15 cursor-default" style={{ boxShadow: "0 1px 3px rgba(27,58,92,0.05)" }}>
-                  <div
-                    className="h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-md"
-                    style={{ background: bg }}
-                  >
-                    <Icon className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" style={{ color }} />
+              <FadeIn key={key} delay={i * 55}>
+                <div
+                  style={{
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+                    padding: 20, borderRadius: 18,
+                    background: "white",
+                    border: "1px solid #E8ECF4",
+                    cursor: "default",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                    boxShadow: "0 1px 4px rgba(27,58,92,0.05)",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 40px rgba(27,58,92,0.12)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(27,58,92,0.05)";
+                  }}
+                >
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon style={{ width: 26, height: 26, color }} />
                   </div>
-                  <span className="text-sm font-semibold text-navy text-center leading-tight">{label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#1B3A5C", textAlign: "center", lineHeight: 1.3 }}>{label}</span>
                 </div>
               </FadeIn>
             ))}
@@ -427,92 +615,125 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. STATS ── */}
-      <section className="py-24 bg-navy relative overflow-hidden">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: "rgba(232,160,32,0.07)", filter: "blur(80px)", transform: "translate(-50%,-50%)" }} />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: "rgba(232,160,32,0.05)", filter: "blur(80px)", transform: "translate(50%,50%)" }} />
+      {/* ══════════════════════════════════════════════════════════════
+          5. STATS
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "120px 0", background: "#1B3A5C", position: "relative", overflow: "hidden" }}>
+        {/* Subtle texture */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 15% 50%, rgba(232,160,32,0.08) 0%, transparent 45%), radial-gradient(circle at 85% 50%, rgba(255,255,255,0.03) 0%, transparent 45%)", pointerEvents: "none" }} />
 
-        <div className="relative max-w-6xl mx-auto px-6">
-          <FadeIn className="text-center mb-16">
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Αριθμοί</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-white mt-3 mb-4 leading-tight">
+        <div className="relative max-w-7xl mx-auto px-6">
+          <FadeIn className="text-center mb-20">
+            <span style={{ color: "#E8A020", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+              Αριθμοί
+            </span>
+            <h2
+              className="font-display font-bold"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.75rem)", lineHeight: 1.1, marginTop: 12, color: "white", letterSpacing: "-0.02em" }}
+            >
               Η πλατφόρμα σε αριθμούς
             </h2>
-            <p className="text-white/45 text-lg max-w-xl mx-auto">
-              Αναπτυσσόμαστε κάθε μέρα με νέες συνεργασίες και κρατήσεις σε όλη την Κρήτη
-            </p>
           </FadeIn>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            {statsData.map((s) => (
-              <StatCounter key={s.label} {...s} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "48px 32px" }}
+               className="md:!grid-cols-4">
+            {statsData.map((s, i) => (
+              <FadeIn key={s.label} delay={i * 100}>
+                <StatCounter {...s} />
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 6. WHO WE ARE ── */}
-      <section className="py-28 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <FadeIn>
-            {/* Decorative quote mark */}
-            <div
-              className="font-display font-bold leading-none mb-2 select-none"
-              style={{ fontSize: "7rem", color: "#E8A020", opacity: 0.18, lineHeight: 1 }}
-            >
-              &ldquo;
-            </div>
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Ποιοι Είμαστε</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-navy mt-3 mb-7 leading-tight">
-              Η αγορά των εμπειριών<br />της Κρήτης
-            </h2>
-            <p className="text-muted text-lg leading-relaxed max-w-2xl mx-auto mb-5">
-              Το CretanDesk δημιουργήθηκε για να γεφυρώσει το χάσμα μεταξύ τουριστικών γραφείων
-              και παρόχων εμπειριών στην Κρήτη. Πιστεύουμε ότι κάθε επισκέπτης αξίζει
-              την καλύτερη εμπειρία — και κάθε επιχείρηση αξίζει τα κατάλληλα εργαλεία.
-            </p>
-            <p className="text-muted text-base leading-relaxed max-w-2xl mx-auto">
-              Από τη θάλασσα του Ηρακλείου ως τα βουνά των Χανίων, συνδέουμε επαγγελματίες
-              του τουρισμού με αξιόπιστες, ελεγμένες εμπειρίες — σε πραγματικό χρόνο,
-              με πλήρη διαφάνεια και αυτοματοποιημένη χρέωση.
-            </p>
-          </FadeIn>
+      {/* ══════════════════════════════════════════════════════════════
+          6. WHO WE ARE
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "120px 0", background: "white" }}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: 48, alignItems: "flex-start" }}
+            className="md:!flex-row md:items-center md:gap-24"
+          >
+            {/* Left: headline */}
+            <FadeIn direction="left" className="flex-1">
+              <span style={{ color: "#E8A020", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+                Ποιοι Είμαστε
+              </span>
+              <h2
+                className="font-display font-bold text-navy"
+                style={{ fontSize: "clamp(2.25rem, 5vw, 4rem)", lineHeight: 1.1, marginTop: 16, letterSpacing: "-0.02em" }}
+              >
+                Η αγορά των εμπειριών της Κρήτης.
+              </h2>
+              <div style={{ width: 60, height: 4, background: "#E8A020", borderRadius: 2, marginTop: 28 }} />
+            </FadeIn>
+
+            {/* Right: text */}
+            <FadeIn direction="right" delay={100} className="flex-1">
+              <p style={{ color: "#374151", fontSize: 18, lineHeight: 1.8, marginBottom: 20 }}>
+                Το CretanDesk δημιουργήθηκε για να γεφυρώσει το χάσμα μεταξύ τουριστικών
+                γραφείων και παρόχων εμπειριών στην Κρήτη. Πιστεύουμε ότι κάθε επισκέπτης
+                αξίζει την καλύτερη εμπειρία — και κάθε επιχείρηση αξίζει τα κατάλληλα
+                εργαλεία.
+              </p>
+              <p style={{ color: "#6B7A8D", fontSize: 16, lineHeight: 1.8 }}>
+                Από τη θάλασσα του Ηρακλείου ως τα βουνά των Χανίων, συνδέουμε
+                επαγγελματίες του τουρισμού με αξιόπιστες εμπειρίες — σε πραγματικό
+                χρόνο, με πλήρη διαφάνεια και αυτοματοποιημένη χρέωση.
+              </p>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
-      {/* ── 7. FINAL CTA ── */}
-      <section className="py-28 bg-navy relative overflow-hidden">
-        {/* Subtle texture */}
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, rgba(232,160,32,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 50%)" }} />
+      {/* ══════════════════════════════════════════════════════════════
+          7. FINAL CTA
+      ══════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "120px 0", background: "#1B3A5C", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 60%, rgba(232,160,32,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 40%, rgba(255,255,255,0.04) 0%, transparent 50%)", pointerEvents: "none" }} />
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <FadeIn>
-            <span className="text-gold text-sm font-semibold uppercase tracking-[0.15em]">Ξεκίνα Τώρα</span>
-            <h2 className="font-display text-4xl md:text-[3.25rem] font-bold text-white mt-3 mb-5 leading-tight">
-              Έτοιμος να αναπτύξεις{" "}
-              <span className="text-gold">την επιχείρησή σου;</span>
+            <span style={{ color: "#E8A020", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+              Ξεκίνα Τώρα
+            </span>
+            <h2
+              className="font-display font-bold"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", lineHeight: 1.1, marginTop: 16, marginBottom: 20, letterSpacing: "-0.02em", color: "#E8A020" }}
+            >
+              Έτοιμος να αναπτύξεις<br />την επιχείρησή σου;
             </h2>
-            <p className="text-white/55 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, lineHeight: 1.7, maxWidth: 540, margin: "0 auto 48px" }}>
               Εγγράψου σήμερα και ξεκίνα να κάνεις κρατήσεις ή να δέχεσαι αιτήματα
               από εγκεκριμένα τουριστικά γραφεία σε όλη την Κρήτη.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register/agency">
-                <Button
-                  size="lg"
-                  className="bg-gold hover:bg-gold-dark text-white font-semibold px-9 text-base h-14"
-                  style={{ boxShadow: "0 8px 32px rgba(232,160,32,0.30)" }}
-                >
-                  Εγγραφή ως Γραφείο
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
+              <a
+                href="/register/agency"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "#E8A020", color: "white",
+                  padding: "16px 40px", borderRadius: 10,
+                  fontSize: 16, fontWeight: 700, textDecoration: "none",
+                  boxShadow: "0 8px 32px rgba(232,160,32,0.35)",
+                }}
+              >
+                Εγγραφή ως Γραφείο
+                <ArrowRight style={{ width: 18, height: 18 }} />
+              </a>
               <a
                 href="/register/partner"
-                style={{ display: "inline-block", border: "2px solid white", color: "white", background: "transparent", padding: "12px 32px", borderRadius: "8px", fontWeight: 500, fontSize: "16px", textDecoration: "none" }}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "transparent", color: "white",
+                  border: "2px solid rgba(255,255,255,0.35)",
+                  padding: "16px 40px", borderRadius: 10,
+                  fontSize: 16, fontWeight: 600, textDecoration: "none",
+                }}
               >
-                Εγγραφή ως Συνεργάτης →
+                Εγγραφή ως Συνεργάτης
+                <ArrowRight style={{ width: 18, height: 18 }} />
               </a>
             </div>
           </FadeIn>
@@ -520,22 +741,29 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-[#122840] text-white/40">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <footer style={{ background: "#0D1F33", color: "rgba(255,255,255,0.35)" }}>
+        <div className="max-w-7xl mx-auto px-6 py-14">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
               <div className="font-display text-xl font-bold text-white mb-1">
-                Cretan<span className="text-gold">Desk</span>
+                Cretan<span style={{ color: "#E8A020" }}>Desk</span>
               </div>
-              <p className="text-sm">Crete&apos;s Experience Marketplace</p>
+              <p style={{ fontSize: 13 }}>Crete&apos;s B2B Experience Marketplace</p>
             </div>
-            <div className="flex gap-6 text-sm">
-              <Link href="/login" className="hover:text-white transition-colors duration-200">Σύνδεση</Link>
-              <Link href="/register/agency" className="hover:text-white transition-colors duration-200">Γραφεία</Link>
-              <Link href="/register/partner" className="hover:text-white transition-colors duration-200">Πάροχοι</Link>
+            <div style={{ display: "flex", gap: 28, fontSize: 14 }}>
+              {[
+                { href: "/login",            label: "Σύνδεση" },
+                { href: "/register/agency",  label: "Γραφεία" },
+                { href: "/register/partner", label: "Πάροχοι" },
+              ].map(({ href, label }) => (
+                <Link key={href} href={href} style={{ color: "rgba(255,255,255,0.35)", textDecoration: "none", transition: "color 0.2s" }}
+                  className="hover:!text-white">
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
-          <div className="border-t mt-8 pt-6 text-center text-xs" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: 36, paddingTop: 24, textAlign: "center", fontSize: 12 }}>
             © {new Date().getFullYear()} CretanDesk. Όλα τα δικαιώματα διατηρούνται.
           </div>
         </div>
