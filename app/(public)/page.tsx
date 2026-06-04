@@ -462,7 +462,7 @@ export default function LandingPage() {
           <h1
             className="font-display font-bold text-white"
             style={{
-              fontSize: "clamp(3rem, 7vw, 6.5rem)",
+              fontSize: "clamp(2rem, 4vw, 4rem)",
               lineHeight: 1.05,
               letterSpacing: "-0.02em",
               marginBottom: 28,
