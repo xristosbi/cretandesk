@@ -275,23 +275,18 @@ export default function LandingPage() {
       </header>
 
       {/* ── 1. HERO ── */}
-      <section className="relative flex items-center justify-center overflow-hidden" style={{ height: "100svh", minHeight: 600 }}>
-        {/* Video background */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-beach-with-crystal-clear-water-41826-large.mp4"
-          poster="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-beach-with-crystal-clear-water-41826-large.jpg"
-        />
-
-        {/* Dark navy overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(160deg, rgba(27,58,92,0.72) 0%, rgba(27,58,92,0.60) 60%, rgba(10,25,45,0.75) 100%)" }}
-        />
+      <section
+        className="relative flex items-center justify-center overflow-hidden"
+        style={{
+          height: "100svh",
+          minHeight: 600,
+          backgroundImage: "url('https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?w=1920&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Dark overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />
 
         {/* Bottom fade into page bg */}
         <div
@@ -339,15 +334,12 @@ export default function LandingPage() {
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </Link>
-            <Link href="/register/partner">
-              <button
-                className="inline-flex items-center justify-center gap-2 px-9 text-base h-14 rounded-md font-medium text-white transition-colors duration-200 hover:bg-white/10"
-                style={{ border: "1.5px solid rgba(255,255,255,0.60)" }}
-              >
-                Είμαι Πάροχος Εμπειριών
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </Link>
+            <a
+              href="/register/partner"
+              style={{ display: "inline-block", border: "2px solid white", color: "white", background: "transparent", padding: "12px 32px", borderRadius: "8px", fontWeight: 500, fontSize: "16px", textDecoration: "none" }}
+            >
+              Εγγραφή ως Συνεργάτης →
+            </a>
           </div>
         </div>
 
@@ -516,17 +508,12 @@ export default function LandingPage() {
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </Link>
-              <Link href="/register/partner">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-white hover:bg-white/10 hover:text-white px-9 text-base h-14"
-                  style={{ borderColor: "rgba(255,255,255,0.30)" }}
-                >
-                  Εγγραφή ως Πάροχος
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
+              <a
+                href="/register/partner"
+                style={{ display: "inline-block", border: "2px solid white", color: "white", background: "transparent", padding: "12px 32px", borderRadius: "8px", fontWeight: 500, fontSize: "16px", textDecoration: "none" }}
+              >
+                Εγγραφή ως Συνεργάτης →
+              </a>
             </div>
           </FadeIn>
         </div>
