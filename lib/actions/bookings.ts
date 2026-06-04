@@ -35,6 +35,7 @@ export async function acceptBooking(
 
   if (error) return { error: error.message };
 
+  revalidatePath("/partner");
   revalidatePath("/partner/bookings");
 
   // Email — fetch agency email and notify them
@@ -86,6 +87,7 @@ export async function declineBooking(
 
   if (error) return { error: error.message };
 
+  revalidatePath("/partner");
   revalidatePath("/partner/bookings");
 
   // Email — notify agency of rejection
@@ -152,6 +154,7 @@ export async function completeBooking(
 
   if (feeError) return { error: feeError.message };
 
+  revalidatePath("/partner");
   revalidatePath("/partner/bookings");
   revalidatePath("/partner/payments");
   return { error: null };
