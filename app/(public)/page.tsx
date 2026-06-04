@@ -154,51 +154,73 @@ const statsData = [
 function DashboardMockup() {
   return (
     <div style={{
+      background: "white",
       borderRadius: 16,
       overflow: "hidden",
       boxShadow: "0 50px 140px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08)",
-      maxWidth: 900,
+      maxWidth: 860,
       margin: "0 auto",
     }}>
       {/* Browser chrome */}
-      <div style={{ background: "#111827", padding: "10px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ display: "flex", gap: 5 }}>
-          {["#FF5F57","#FFBD2E","#28CA41"].map(c => (
+      <div style={{
+        background: "#1E2530",
+        padding: "9px 14px",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+          {["#FF5F57", "#FFBD2E", "#28CA41"].map(c => (
             <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />
           ))}
         </div>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", borderRadius: 5, padding: "3px 10px", fontSize: 11, color: "rgba(255,255,255,0.28)", textAlign: "center", letterSpacing: "0.01em" }}>
+        <div style={{
+          flex: 1,
+          background: "rgba(255,255,255,0.06)",
+          borderRadius: 5,
+          padding: "4px 12px",
+          fontSize: 11,
+          color: "rgba(255,255,255,0.25)",
+          textAlign: "center",
+        }}>
           app.cretandesk.gr/partner
         </div>
-        <div style={{ width: 60 }} />
+        <div style={{ width: 62, flexShrink: 0 }} />
       </div>
 
-      {/* Dashboard */}
-      <div style={{ display: "flex", background: "#F4F6F9", height: 400 }}>
+      {/* App shell */}
+      <div style={{ display: "flex", background: "#F4F6F9", minHeight: 360 }}>
 
         {/* Sidebar */}
-        <div style={{ width: 188, background: "#1B3A5C", flexShrink: 0, display: "flex", flexDirection: "column" }}>
-          <div style={{ padding: "16px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <span style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: "white", fontSize: 14 }}>
+        <div style={{
+          width: 180,
+          background: "#1B3A5C",
+          flexShrink: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}>
+          <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ fontFamily: "Georgia, serif", fontWeight: 700, color: "white", fontSize: 13, letterSpacing: "0.01em" }}>
               Cretan<span style={{ color: "#E8A020" }}>Desk</span>
             </span>
           </div>
-          <div style={{ padding: "10px 0", flex: 1 }}>
+          <div style={{ padding: "8px 0", flex: 1 }}>
             {[
-              { label: "Επισκόπηση",  active: true },
-              { label: "Εκδρομές",   active: false },
-              { label: "Κρατήσεις",  active: false },
-              { label: "Γραφεία",    active: false },
-              { label: "Πληρωμές",   active: false },
+              { label: "Επισκόπηση", active: true },
+              { label: "Εκδρομές",  active: false },
+              { label: "Κρατήσεις", active: false },
+              { label: "Γραφεία",   active: false },
+              { label: "Πληρωμές",  active: false },
             ].map(item => (
               <div key={item.label} style={{
-                padding: "7px 16px",
+                padding: "7px 14px",
                 margin: "1px 8px",
                 borderRadius: 6,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 500,
-                background: item.active ? "rgba(232,160,32,0.14)" : "transparent",
-                color: item.active ? "#E8A020" : "rgba(255,255,255,0.45)",
+                background: item.active ? "rgba(232,160,32,0.16)" : "transparent",
+                color: item.active ? "#E8A020" : "rgba(255,255,255,0.4)",
               }}>
                 {item.label}
               </div>
@@ -207,46 +229,78 @@ function DashboardMockup() {
         </div>
 
         {/* Main content */}
-        <div style={{ flex: 1, padding: 16, overflow: "hidden" }}>
-          {/* Greeting */}
+        <div style={{ flex: 1, padding: "14px 16px", overflow: "hidden" }}>
+          {/* Greeting bar */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1B3A5C" }}>Καλημέρα, Aegean Cruises</div>
-            <div style={{ fontSize: 10, color: "#9CA3AF" }}>Επισκόπηση κρατήσεών σου</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1B3A5C" }}>Καλημέρα, Aegean Cruises</div>
+            <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 2 }}>Επισκόπηση κρατήσεών σου</div>
           </div>
 
-          {/* Stat cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 12 }}>
+          {/* Stat cards row */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
             {[
-              { val: "124", label: "Κρατήσεις",  delta: "+12%" },
-              { val: "48",  label: "Γραφεία",    delta: "+3" },
-              { val: "€640",label: "Έσοδα μήνα", delta: "+8%" },
+              { val: "124", label: "Κρατήσεις", delta: "+12%", ok: true },
+              { val: "48",  label: "Γραφεία",   delta: "+3",   ok: true },
+              { val: "€640",label: "Έσοδα",     delta: "+8%",  ok: true },
             ].map(s => (
-              <div key={s.label} style={{ background: "white", borderRadius: 10, padding: "12px 13px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize: 19, fontWeight: 800, color: "#1B3A5C", lineHeight: 1 }}>{s.val}</div>
-                <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 3 }}>{s.label}</div>
-                <div style={{ fontSize: 9, color: "#2D9B6F", marginTop: 2, fontWeight: 600 }}>{s.delta}</div>
+              <div key={s.label} style={{
+                background: "white",
+                borderRadius: 8,
+                padding: "10px 12px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                border: "1px solid #EEF0F3",
+              }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#1B3A5C", lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontSize: 8, color: "#9CA3AF", marginTop: 3, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
+                <div style={{ fontSize: 9, color: "#2D9B6F", marginTop: 3, fontWeight: 600 }}>{s.delta}</div>
               </div>
             ))}
           </div>
 
-          {/* Booking list */}
-          <div style={{ background: "white", borderRadius: 10, padding: "12px 14px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#1B3A5C", marginBottom: 10 }}>Τελευταίες Κρατήσεις</div>
+          {/* Bookings table */}
+          <div style={{
+            background: "white",
+            borderRadius: 8,
+            overflow: "hidden",
+            border: "1px solid #EEF0F3",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+          }}>
+            <div style={{
+              padding: "9px 12px",
+              borderBottom: "1px solid #F0F2F5",
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#1B3A5C",
+            }}>
+              Τελευταίες Κρατήσεις
+            </div>
             {[
-              { agency: "Sunlight Travel",   excursion: "Κρήτη: Σπηλαιοβύθιση Ρεθύμνου",  status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
-              { agency: "Blue Aegean Tours", excursion: "Ναυτικό Ηλιοβασίλεμα Σφακίων",   status: "Αναμονή",   sb: "#FEF3C7", sc: "#92400E" },
-              { agency: "Paradise Routes",   excursion: "Γαστρονομική Περιήγηση Χανίων",  status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
+              { agency: "Sunlight Travel",   excursion: "Σπηλαιοβύθιση Ρεθύμνου", status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
+              { agency: "Blue Aegean Tours", excursion: "Ηλιοβασίλεμα Σφακίων",   status: "Αναμονή",   sb: "#FEF3C7", sc: "#92400E" },
+              { agency: "Paradise Routes",   excursion: "Γαστρονομία Χανίων",     status: "Εγκρίθηκε", sb: "#D1FAE5", sc: "#065F46" },
             ].map((row, i) => (
               <div key={i} style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "7px 0",
-                borderBottom: i < 2 ? "1px solid #F3F4F6" : "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "7px 12px",
+                borderBottom: i < 2 ? "1px solid #F5F6F8" : "none",
               }}>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "#1B3A5C" }}>{row.agency}</div>
-                  <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 1 }}>{row.excursion}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "#1B3A5C", whiteSpace: "nowrap" }}>{row.agency}</div>
+                  <div style={{ fontSize: 9, color: "#9CA3AF", marginTop: 1, whiteSpace: "nowrap" }}>{row.excursion}</div>
                 </div>
-                <div style={{ padding: "2px 8px", borderRadius: 4, background: row.sb, color: row.sc, fontSize: 10, fontWeight: 600, whiteSpace: "nowrap" }}>
+                <div style={{
+                  padding: "2px 7px",
+                  borderRadius: 4,
+                  background: row.sb,
+                  color: row.sc,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  marginLeft: 8,
+                }}>
                   {row.status}
                 </div>
               </div>
@@ -531,30 +585,72 @@ export default function LandingPage() {
                 </ul>
               </FadeIn>
 
-              {/* Visual */}
+              {/* Visual — feature card mockup */}
               <FadeIn
                 direction={i % 2 === 0 ? "right" : "left"}
                 delay={120}
                 className="flex-1 w-full"
               >
                 <div style={{
-                  background: `linear-gradient(135deg, ${accent} 0%, ${accent}cc 100%)`,
-                  borderRadius: 24,
-                  aspectRatio: "4/3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  background: "white",
+                  border: "1px solid #E4E8F0",
+                  borderRadius: 20,
+                  padding: 28,
+                  boxShadow: `0 20px 60px ${accent}14, 0 4px 16px rgba(0,0,0,0.05)`,
                   position: "relative",
                   overflow: "hidden",
-                  boxShadow: `0 24px 80px ${accent}30`,
                 }}>
-                  {/* Decorative rings */}
-                  <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", border: `1px solid rgba(255,255,255,0.08)`, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
-                  <div style={{ position: "absolute", width: 200, height: 200, borderRadius: "50%", border: `1px solid rgba(255,255,255,0.12)`, top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
-                  <Icon style={{ width: 80, height: 80, color: "rgba(255,255,255,0.9)", position: "relative", zIndex: 1 }} />
-                  {/* Gold accent dot */}
-                  <div style={{ position: "absolute", width: 16, height: 16, borderRadius: "50%", background: "#E8A020", bottom: 40, right: 40 }} />
-                  <div style={{ position: "absolute", width: 8, height: 8, borderRadius: "50%", background: "rgba(255,255,255,0.4)", top: 40, left: 60 }} />
+                  {/* Top accent stripe */}
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, borderRadius: "20px 20px 0 0" }} />
+
+                  {/* Icon header */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                    <div style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 12,
+                      background: accentLight,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}>
+                      <Icon style={{ width: 20, height: 20, color: accent }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#1B3A5C" }}>{title}</div>
+                      <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 1 }}>{subtitle}</div>
+                    </div>
+                  </div>
+
+                  {/* Mock data rows */}
+                  {[80, 55, 90, 65].map((w, j) => (
+                    <div key={j} style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "9px 0",
+                      borderBottom: j < 3 ? "1px solid #F3F4F6" : "none",
+                    }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 8, background: j === 0 ? accentLight : "#F3F4F6", flexShrink: 0 }} />
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                        <div style={{ height: 7, borderRadius: 4, background: "#E8ECF4", width: `${w}%` }} />
+                        <div style={{ height: 5, borderRadius: 4, background: "#F0F2F5", width: `${w * 0.6}%` }} />
+                      </div>
+                      <div style={{
+                        padding: "3px 8px",
+                        borderRadius: 5,
+                        background: j % 2 === 0 ? accentLight : "#F0F2F5",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: j % 2 === 0 ? accent : "#9CA3AF",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}>
+                        {j % 2 === 0 ? "✓" : "—"}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </FadeIn>
             </div>
