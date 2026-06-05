@@ -215,10 +215,15 @@ export default function AgencyExcursionsPage() {
                       {CAT_SHORT[ex.category] ?? ex.category}
                     </span>
                   )}
-                  <div className="grid grid-cols-3 gap-1 text-xs" style={{ color: "#9CA3AF" }}>
-                    <span className="flex items-center gap-1"><MapPin style={{ width: 11, height: 11 }} />{ex.price_per_person != null ? formatCurrency(ex.price_per_person) : "—"}</span>
-                    <span className="flex items-center gap-1"><Users style={{ width: 11, height: 11 }} />{ex.max_capacity ?? "—"}</span>
-                    <span className="flex items-center gap-1"><Clock style={{ width: 11, height: 11 }} />{ex.duration_hours != null ? `${ex.duration_hours}ω` : "—"}</span>
+                  <div className="flex flex-col gap-1 text-xs" style={{ color: "#9CA3AF" }}>
+                    <span className="flex items-center gap-1 font-medium" style={{ color: "#1B3A5C" }}>
+                      <MapPin style={{ width: 11, height: 11, color: "#9CA3AF", flexShrink: 0 }} />
+                      {ex.price_per_person != null ? `${formatCurrency(ex.price_per_person)}/άτομο` : "—"}
+                    </span>
+                    <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-1"><Users style={{ width: 11, height: 11, flexShrink: 0 }} />{ex.max_capacity ?? "—"} θέσεις</span>
+                      <span className="flex items-center gap-1"><Clock style={{ width: 11, height: 11, flexShrink: 0 }} />{ex.duration_hours != null ? `${ex.duration_hours}ω` : "—"}</span>
+                    </span>
                   </div>
                   <button onClick={() => setSelected(ex)} type="button" className="mt-auto"
                     style={{ width: "100%", padding: "8px 0", borderRadius: 8, background: "#1B3A5C", color: "white", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}>

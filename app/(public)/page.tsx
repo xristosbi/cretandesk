@@ -435,7 +435,7 @@ export default function LandingPage() {
           position: "relative",
           backgroundImage: "url('https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?w=1920&q=80')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center center",
           paddingTop: 160,
           paddingBottom: 100,
         }}

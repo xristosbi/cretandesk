@@ -71,9 +71,9 @@ export function PartnerCalendar({ bookedDates }: Props) {
       </div>
 
       {/* Day cells — dot style for booked dates */}
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
-          if (!day) return <div key={`e-${i}`} style={{ aspectRatio: "1" }} />;
+          if (!day) return <div key={`e-${i}`} style={{ aspectRatio: "1", minHeight: 32 }} />;
 
           const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const isToday = dateStr === today;
@@ -84,6 +84,7 @@ export function PartnerCalendar({ bookedDates }: Props) {
               key={dateStr}
               style={{
                 aspectRatio: "1",
+                minHeight: 32,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -94,7 +95,7 @@ export function PartnerCalendar({ bookedDates }: Props) {
               }}
             >
               <span style={{
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight: isToday ? 700 : 400,
                 color: isToday ? "#1D4ED8" : "#374151",
                 lineHeight: 1,

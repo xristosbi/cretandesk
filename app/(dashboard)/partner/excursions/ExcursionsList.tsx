@@ -171,10 +171,15 @@ export function ExcursionsList({ excursions }: { excursions: Excursion[] }) {
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-1 text-xs" style={{ color: "#9CA3AF" }}>
-                  <span className="flex items-center gap-1"><MapPin style={{ width: 11, height: 11 }} />{ex.price_per_person != null ? formatCurrency(ex.price_per_person) : "—"}</span>
-                  <span className="flex items-center gap-1"><Users style={{ width: 11, height: 11 }} />{ex.max_capacity ?? "—"}</span>
-                  <span className="flex items-center gap-1"><Clock style={{ width: 11, height: 11 }} />{ex.duration_hours != null ? `${ex.duration_hours}ω` : "—"}</span>
+                <div className="flex flex-col gap-1 text-xs" style={{ color: "#9CA3AF" }}>
+                  <span className="flex items-center gap-1 font-medium" style={{ color: "#1B3A5C" }}>
+                    <MapPin style={{ width: 11, height: 11, color: "#9CA3AF", flexShrink: 0 }} />
+                    {ex.price_per_person != null ? `${formatCurrency(ex.price_per_person)}/άτομο` : "—"}
+                  </span>
+                  <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-1"><Users style={{ width: 11, height: 11, flexShrink: 0 }} />{ex.max_capacity ?? "—"} θέσεις</span>
+                    <span className="flex items-center gap-1"><Clock style={{ width: 11, height: 11, flexShrink: 0 }} />{ex.duration_hours != null ? `${ex.duration_hours}ω` : "—"}</span>
+                  </span>
                 </div>
                 <div className="flex gap-2 pt-1">
                   <form action={toggleExcursionActive.bind(null, ex.id, !ex.active)} className="flex-1">

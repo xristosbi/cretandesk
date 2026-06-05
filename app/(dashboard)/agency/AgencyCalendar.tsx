@@ -75,9 +75,9 @@ export function AgencyCalendar({ bookedDates }: Props) {
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
-          if (!day) return <div key={`e-${i}`} />;
+          if (!day) return <div key={`e-${i}`} style={{ aspectRatio: "1", minHeight: 32 }} />;
 
           const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const isToday = dateStr === today;
@@ -86,7 +86,6 @@ export function AgencyCalendar({ bookedDates }: Props) {
           let bg = "transparent";
           let color = "#374151";
           let fontWeight: number = 400;
-          let borderRadius = "8px";
 
           if (isBooked) {
             bg = "#2563EB";
@@ -103,14 +102,15 @@ export function AgencyCalendar({ bookedDates }: Props) {
               key={dateStr}
               style={{
                 aspectRatio: "1",
+                minHeight: 32,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight,
                 background: bg,
                 color,
-                borderRadius,
+                borderRadius: "8px",
               }}
             >
               {day}
