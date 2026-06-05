@@ -79,8 +79,8 @@ export default function Sidebar({ role, userEmail }: SidebarProps) {
         <p className="text-xs text-white/50 mt-0.5">Crete&apos;s Experience Marketplace</p>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      {/* Nav + Logout (all in scrollable area) */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon   = item.icon;
           const active = isActive(item.href);
@@ -99,21 +99,21 @@ export default function Sidebar({ role, userEmail }: SidebarProps) {
             </Link>
           );
         })}
-      </nav>
 
-      {/* User + Logout — deliberately NOT a <form> to avoid React 19 form capture */}
-      <div className="px-4 py-4 border-t border-white/10 space-y-3">
-        <p className="px-2 text-xs text-white/40 truncate">{userEmail}</p>
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={pending}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
-        >
-          <LogOut size={18} className="text-white/60" />
-          {pending ? "Αποσύνδεση…" : "Αποσύνδεση"}
-        </button>
-      </div>
+        {/* User + Logout — inside nav so it scrolls into view on mobile */}
+        <div className="mt-4 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          <p className="px-3 text-xs text-white/40 truncate mb-1">{userEmail}</p>
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={pending}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
+          >
+            <LogOut size={18} className="text-white/60" />
+            {pending ? "Αποσύνδεση…" : "Αποσύνδεση"}
+          </button>
+        </div>
+      </nav>
     </aside>
   );
 }
