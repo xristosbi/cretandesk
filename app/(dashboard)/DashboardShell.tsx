@@ -6,18 +6,18 @@ import { Menu, X } from "lucide-react";
 
 export function DashboardShell({
   sidebar,
+  topBar,
   children,
 }: {
   sidebar: React.ReactNode;
+  topBar?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close when route changes (nav link click on mobile)
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  // Lock body scroll while drawer is open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -26,7 +26,7 @@ export function DashboardShell({
   return (
     <div className="flex min-h-screen bg-background">
 
-      {/* Dark backdrop — mobile only, tap to close */}
+      {/* Dark backdrop — mobile only */}
       {open && (
         <div
           className="fixed inset-0 z-20 lg:hidden"
@@ -36,7 +36,7 @@ export function DashboardShell({
         />
       )}
 
-      {/* Sidebar — off-screen by default on mobile, always visible on desktop */}
+      {/* Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-30
         transition-transform duration-250 ease-in-out
@@ -49,9 +49,9 @@ export function DashboardShell({
       {/* Main content column */}
       <div className="flex flex-col flex-1 lg:ml-64 min-h-screen min-w-0 w-full">
 
-        {/* Mobile-only top bar with hamburger */}
+        {/* Top bar — hamburger on mobile, bell always */}
         <header
-          className="lg:hidden sticky top-0 z-10 flex items-center gap-3 px-4 shrink-0"
+          className="sticky top-0 z-10 flex items-center gap-3 px-4 shrink-0"
           style={{
             height: 56,
             background: "white",
@@ -59,10 +59,12 @@ export function DashboardShell({
             boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
           }}
         >
+          {/* Hamburger — mobile only */}
           <button
             type="button"
             onClick={() => setOpen(v => !v)}
             aria-label={open ? "Κλείσιμο μενού" : "Άνοιγμα μενού"}
+            className="lg:hidden"
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 36, height: 36, borderRadius: 8,
@@ -76,9 +78,17 @@ export function DashboardShell({
               : <Menu style={{ width: 20, height: 20 }} />
             }
           </button>
-          <span className="font-display font-bold" style={{ fontSize: 18, color: "#1B3A5C" }}>
+
+          {/* Logo — mobile only (desktop has sidebar) */}
+          <span className="lg:hidden font-display font-bold" style={{ fontSize: 18, color: "#1B3A5C" }}>
             Cretan<span style={{ color: "#E8A020" }}>Desk</span>
           </span>
+
+          {/* Push right-side items to the end */}
+          <div className="flex-1" />
+
+          {/* Notification bell (+ any future right-side items) */}
+          {topBar}
         </header>
 
         {/* Page content */}

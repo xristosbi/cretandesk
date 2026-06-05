@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/layout/Sidebar";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { DashboardShell } from "./DashboardShell";
 import type { UserRole } from "@/types/database";
 
@@ -42,7 +43,10 @@ export default async function DashboardLayout({
   const role = profile.role as UserRole;
 
   return (
-    <DashboardShell sidebar={<Sidebar role={role} userEmail={user.email!} />}>
+    <DashboardShell
+      sidebar={<Sidebar role={role} userEmail={user.email!} />}
+      topBar={<NotificationBell userId={user.id} />}
+    >
       {children}
     </DashboardShell>
   );

@@ -47,16 +47,22 @@ export async function acceptBooking(
       .eq("id", booking.agency_id)
       .single();
 
-    const partner = booking.partners as { business_name: string } | null;
+    const partner   = booking.partners   as { business_name: string } | null;
     const excursion = booking.excursions as { name: string } | null;
+
+    // In-app notification for the agency
+    await service.from("notifications").insert({
+      user_id: booking.agency_id,
+      message: `Η κράτησή σας για "${excursion?.name ?? "εκδρομή"}" στις ${booking.date} εγκρίθηκε από ${partner?.business_name ?? "τον πάροχο"}.`,
+    });
 
     if (agencyProfile?.email) {
       await sendBookingAcceptedEmail({
-        agencyEmail:  agencyProfile.email,
-        partnerName:  partner?.business_name ?? "",
+        agencyEmail:   agencyProfile.email,
+        partnerName:   partner?.business_name ?? "",
         excursionName: excursion?.name ?? "",
-        date:         booking.date,
-        persons:      booking.total_persons,
+        date:          booking.date,
+        persons:       booking.total_persons,
       });
     }
   }
@@ -90,7 +96,7 @@ export async function declineBooking(
   revalidatePath("/partner");
   revalidatePath("/partner/bookings");
 
-  // Email — notify agency of rejection
+  // Email + notification — notify agency of rejection
   if (booking) {
     const service = createServiceClient();
     const { data: agencyProfile } = await service
@@ -99,8 +105,14 @@ export async function declineBooking(
       .eq("id", booking.agency_id)
       .single();
 
-    const partner = booking.partners as { business_name: string } | null;
+    const partner   = booking.partners   as { business_name: string } | null;
     const excursion = booking.excursions as { name: string } | null;
+
+    // In-app notification for the agency
+    await service.from("notifications").insert({
+      user_id: booking.agency_id,
+      message: `Η κράτησή σας για "${excursion?.name ?? "εκδρομή"}" στις ${booking.date} απορρίφθηκε από ${partner?.business_name ?? "τον πάροχο"}.`,
+    });
 
     if (agencyProfile?.email) {
       await sendBookingDeclinedEmail({
@@ -204,17 +216,25 @@ export async function createBooking(
   revalidatePath("/agency/bookings");
   revalidatePath("/agency/excursions");
 
-  // Email — notify partner of new booking request
+  // Email + notification — notify partner of new booking request
   const service = createServiceClient();
   const [{ data: partnerProfile }, { data: excursion }] = await Promise.all([
     service.from("profiles").select("email").eq("id", partnerId).single(),
     service.from("excursions").select("name").eq("id", excursionId).single(),
   ]);
 
+  const agencyName = (agency as { id: string; business_name: string }).business_name;
+
+  // In-app notification for the partner
+  await service.from("notifications").insert({
+    user_id: partnerId,
+    message: `Νέο αίτημα κράτησης από ${agencyName} για "${excursion?.name ?? "εκδρομή"}" στις ${date}.`,
+  });
+
   if (partnerProfile?.email) {
     await sendNewBookingRequestEmail({
       partnerEmail:  partnerProfile.email,
-      agencyName:    (agency as { id: string; business_name: string }).business_name,
+      agencyName,
       excursionName: excursion?.name ?? "",
       date,
       persons:       personsAdults + personsChildren,
