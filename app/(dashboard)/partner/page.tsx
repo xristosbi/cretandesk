@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { PartnerCalendar } from "./PartnerCalendar";
 import { PartnerBookingActions } from "./PartnerBookingActions";
+import { BlackoutPanel } from "./BlackoutPanel";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -87,24 +88,38 @@ export default async function PartnerOverviewPage() {
     byAgency[key].bookings.push(b);
   }
 
-  // ── Round 2: availability ─────────────────────────────────────────
+  // ── Round 2: availability + blackouts ────────────────────────────
   let nearestByExcursion = new Map<string, { date: string; slots: number }>();
   let upcomingAvail: AvailRow[] = [];
+  let blackoutDates: string[] = [];
+  let allBlackouts: { excursion_id: string; date: string }[] = [];
 
   if (excursions.length > 0) {
     const ids = excursions.map(e => e.id);
-    const { data: availData } = await supabase
-      .from("availability")
-      .select("excursion_id, date, available_slots, excursions(name)")
-      .in("excursion_id", ids)
-      .gte("date", today)
-      .lte("date", twoMonthsOut)
-      .eq("blackout", false)
-      .gt("available_slots", 0)
-      .order("date")
-      .limit(30);
+    const [{ data: availData }, { data: blackoutData }] = await Promise.all([
+      supabase
+        .from("availability")
+        .select("excursion_id, date, available_slots, excursions(name)")
+        .in("excursion_id", ids)
+        .gte("date", today)
+        .lte("date", twoMonthsOut)
+        .eq("blackout", false)
+        .gt("available_slots", 0)
+        .order("date")
+        .limit(30),
+      supabase
+        .from("availability")
+        .select("excursion_id, date")
+        .in("excursion_id", ids)
+        .eq("blackout", true)
+        .gte("date", today)
+        .order("date")
+        .limit(200),
+    ]);
 
     const avail = (availData ?? []) as AvailRow[];
+    allBlackouts = (blackoutData ?? []) as { excursion_id: string; date: string }[];
+    blackoutDates = [...new Set(allBlackouts.map(b => b.date))];
 
     // Nearest upcoming slot per excursion (for left panel)
     for (const a of avail) {
@@ -113,7 +128,6 @@ export default async function PartnerOverviewPage() {
       }
     }
 
-    // Upcoming list deduplicated to one entry per (excursion × date) for right panel
     upcomingAvail = avail.slice(0, 10);
   }
 
@@ -143,7 +157,7 @@ export default async function PartnerOverviewPage() {
             <h2 className="font-semibold text-base mb-4" style={{ color: "#1B3A5C" }}>
               Οι Εκδρομές Μου
             </h2>
-            <PartnerCalendar bookedDates={bookedDates} />
+            <PartnerCalendar bookedDates={bookedDates} blackoutDates={blackoutDates} />
           </div>
 
           {/* Active excursions list */}
@@ -212,6 +226,8 @@ export default async function PartnerOverviewPage() {
               </div>
             )}
           </div>
+          {/* Blackout management */}
+          <BlackoutPanel excursions={excursions} blackouts={allBlackouts} />
         </div>
 
         {/* ═══ RIGHT: Κρατήσεις + Διαθεσιμότητα ═══ */}

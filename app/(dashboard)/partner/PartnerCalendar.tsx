@@ -10,15 +10,16 @@ const MONTHS_EL = [
   "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος",
 ];
 
-type Props = { bookedDates: string[] };
+type Props = { bookedDates: string[]; blackoutDates?: string[] };
 
-export function PartnerCalendar({ bookedDates }: Props) {
+export function PartnerCalendar({ bookedDates, blackoutDates = [] }: Props) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
 
   const today = now.toISOString().slice(0, 10);
-  const bookedSet = new Set(bookedDates);
+  const bookedSet   = new Set(bookedDates);
+  const blackoutSet = new Set(blackoutDates);
 
   const firstDow = new Date(year, month, 1).getDay();
   const startOffset = (firstDow + 6) % 7; // shift to Monday-first
@@ -75,13 +76,15 @@ export function PartnerCalendar({ bookedDates }: Props) {
         {cells.map((day, i) => {
           if (!day) return <div key={`e-${i}`} style={{ aspectRatio: "1", minHeight: 32 }} />;
 
-          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-          const isToday = dateStr === today;
-          const isBooked = bookedSet.has(dateStr);
+          const dateStr    = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const isToday    = dateStr === today;
+          const isBooked   = bookedSet.has(dateStr);
+          const isBlackout = blackoutSet.has(dateStr);
 
           return (
             <div
               key={dateStr}
+              title={isBlackout ? "Κλειστό" : undefined}
               style={{
                 aspectRatio: "1",
                 minHeight: 32,
@@ -89,36 +92,44 @@ export function PartnerCalendar({ bookedDates }: Props) {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 2,
+                gap: 1,
                 borderRadius: "8px",
-                background: isToday ? "#DBEAFE" : "transparent",
+                background: isBlackout ? "#FEE2E2" : isToday ? "#DBEAFE" : "transparent",
               }}
             >
               <span style={{
                 fontSize: "13px",
-                fontWeight: isToday ? 700 : 400,
-                color: isToday ? "#1D4ED8" : "#374151",
+                fontWeight: isBlackout || isToday ? 700 : 400,
+                color: isBlackout ? "#D94040" : isToday ? "#1D4ED8" : "#374151",
                 lineHeight: 1,
               }}>
                 {day}
               </span>
-              {/* Dot indicator */}
-              <div style={{
-                width: 4,
-                height: 4,
-                borderRadius: "50%",
-                background: isBooked ? (isToday ? "#1D4ED8" : "#2563EB") : "transparent",
-              }} />
+              {/* Blackout ✕ or booked dot */}
+              {isBlackout ? (
+                <span style={{ fontSize: 8, color: "#D94040", fontWeight: 700, lineHeight: 1 }}>✕</span>
+              ) : (
+                <div style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: "50%",
+                  background: isBooked ? (isToday ? "#1D4ED8" : "#2563EB") : "transparent",
+                }} />
+              )}
             </div>
           );
         })}
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center gap-5" style={{ fontSize: "11px", color: "#9CA3AF" }}>
+      <div className="mt-4 flex flex-wrap items-center gap-4" style={{ fontSize: "11px", color: "#9CA3AF" }}>
         <div className="flex items-center gap-1.5">
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#2563EB" }} />
           Κράτηση
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div style={{ width: 10, height: 10, borderRadius: 3, background: "#FEE2E2", border: "1px solid #FECACA" }} />
+          Κλειστό
         </div>
         <div className="flex items-center gap-1.5">
           <div style={{ width: 10, height: 10, borderRadius: 3, background: "#DBEAFE" }} />
