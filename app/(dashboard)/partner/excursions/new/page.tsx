@@ -166,7 +166,7 @@ export default function NewExcursionPage() {
               {CATEGORIES.map((cat) => (
                 <optgroup key={cat.value} label={cat.label}>
                   {cat.subcategories.map((sub) => (
-                    <option key={sub.value} value={`${cat.value}:${sub.value}`}>
+                    <option key={sub.value} value={sub.value}>
                       {sub.label}
                     </option>
                   ))}

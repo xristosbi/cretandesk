@@ -409,7 +409,7 @@ export type Database = {
       user_role: "admin" | "partner" | "agency"
       user_status: "pending" | "approved" | "suspended"
       booking_status: "pending" | "accepted" | "rejected" | "completed"
-      excursion_category: "sea" | "adventure" | "aerial" | "gastronomy" | "culture" | "vip" | "niche"
+      excursion_category: string
       cretan_area:
         // Prefectures (legacy / filter buckets)
         | "heraklion" | "chania" | "rethymno" | "lasithi"

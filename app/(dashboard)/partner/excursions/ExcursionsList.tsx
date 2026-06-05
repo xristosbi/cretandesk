@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Plus, MapPin, Clock, Users, Image as ImageIcon, Search, SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PREFECTURES } from "@/lib/constants/areas";
+import { CATEGORIES, getParentCategory, getSubcategoryLabel } from "@/lib/constants/categories";
 
 type Excursion = {
   id: string; name: string; description: string | null; category: string | null;
@@ -18,8 +19,8 @@ const AREA_LABELS: Record<string, string> = {
   heraklion: "Ηράκλειο", chania: "Χανιά", rethymno: "Ρέθυμνο", lasithi: "Λασίθι",
 };
 const CAT_SHORT: Record<string, string> = {
-  sea: "Θαλάσσια", adventure: "Περιπέτεια", aerial: "Εναέρια",
-  gastronomy: "Γαστρονομία", culture: "Πολιτισμός", vip: "VIP", niche: "Ειδικές",
+  sea: "Θάλασσα", adventure: "Περιπέτεια & Φύση", aerial: "Αέρας",
+  gastronomy: "Γεύση & Παράδοση", culture: "Πολιτισμός", vip: "VIP", niche: "Εναλλακτικά",
 };
 
 function Pill({ label, active, onClick, accent = "navy" }: {
@@ -45,7 +46,7 @@ export function ExcursionsList({ excursions }: { excursions: Excursion[] }) {
 
   const filtered = useMemo(() => excursions.filter(e => {
     if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filterCat && e.category !== filterCat) return false;
+    if (filterCat && getParentCategory(e.category) !== filterCat) return false;
     if (filterArea && e.area !== filterArea) return false;
     if (filterStatus === "active" && !e.active) return false;
     if (filterStatus === "inactive" && e.active) return false;
@@ -103,8 +104,8 @@ export function ExcursionsList({ excursions }: { excursions: Excursion[] }) {
         <div className="flex flex-wrap gap-2 items-center">
           <span style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em", marginRight: 4 }}>Κατηγορία</span>
           <Pill label="Όλες" active={!filterCat} onClick={() => setFilterCat("")} accent="gold" />
-          {Object.entries(CAT_SHORT).map(([k, v]) => (
-            <Pill key={k} label={v} active={filterCat === k} onClick={() => setFilterCat(filterCat === k ? "" : k)} accent="gold" />
+          {CATEGORIES.map(c => (
+            <Pill key={c.value} label={CAT_SHORT[c.value] ?? c.label} active={filterCat === c.value} onClick={() => setFilterCat(filterCat === c.value ? "" : c.value)} accent="gold" />
           ))}
         </div>
 
@@ -162,7 +163,7 @@ export function ExcursionsList({ excursions }: { excursions: Excursion[] }) {
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {ex.category && (
                       <span style={{ fontSize: 10, fontWeight: 500, padding: "2px 7px", borderRadius: 4, background: "#FFFBEB", color: "#D97706" }}>
-                        {CAT_SHORT[ex.category] ?? ex.category}
+                        {getSubcategoryLabel(ex.category)}
                       </span>
                     )}
                     {ex.area && (

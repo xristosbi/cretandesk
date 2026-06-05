@@ -17,7 +17,7 @@ export async function createExcursion(_prev: { error: string | null }, formData:
   const name           = formData.get("name") as string;
   const description    = formData.get("description") as string;
   const categoryRaw    = formData.get("category") as string;
-  const category       = (categoryRaw ? categoryRaw.split(":")[0] : "") as ExcursionCategory;
+  const category       = (categoryRaw || "") as ExcursionCategory;
   const area           = formData.get("area") as Area;
   const pricePerPerson = parseFloat(formData.get("price_per_person") as string);
   const maxCapacity    = parseInt(formData.get("max_capacity") as string);
@@ -53,7 +53,7 @@ export async function updateExcursion(id: string, formData: FormData) {
   const name           = formData.get("name") as string;
   const description    = formData.get("description") as string;
   const categoryRaw2   = formData.get("category") as string;
-  const category       = (categoryRaw2 ? categoryRaw2.split(":")[0] : "") as ExcursionCategory;
+  const category       = (categoryRaw2 || "") as ExcursionCategory;
   const area           = formData.get("area") as Area;
   const pricePerPerson = parseFloat(formData.get("price_per_person") as string);
   const maxCapacity    = parseInt(formData.get("max_capacity") as string);

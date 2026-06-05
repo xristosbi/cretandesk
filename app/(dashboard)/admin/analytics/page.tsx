@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { AnalyticsCharts, type CategoryCount, type MonthlyCount, type MonthlyRevenue } from "@/components/dashboard/AnalyticsCharts";
+import { getParentCategory } from "@/lib/constants/categories";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  sea: "Θαλάσσια", adventure: "Περιπέτεια", aerial: "Εναέρια",
-  gastronomy: "Γαστρονομία", culture: "Πολιτισμός", vip: "VIP", niche: "Ειδικές",
+  sea: "Θάλασσα", adventure: "Περιπέτεια & Φύση", aerial: "Αέρας",
+  gastronomy: "Γεύση & Παράδοση", culture: "Πολιτισμός", vip: "VIP", niche: "Εναλλακτικά",
 };
 const CATEGORY_KEYS = ["sea", "adventure", "aerial", "gastronomy", "culture", "vip", "niche"];
 
@@ -52,7 +53,8 @@ export default async function AdminAnalyticsPage() {
 
   // ── Excursion bar charts (progress bars) ──────────────────────────────────
   const categoryCounts = (excursionsByCategory ?? []).reduce((acc: Record<string, number>, e) => {
-    if (e.category) acc[e.category] = (acc[e.category] ?? 0) + 1;
+    const parent = e.category ? getParentCategory(e.category) : null;
+    if (parent) acc[parent] = (acc[parent] ?? 0) + 1;
     return acc;
   }, {});
   const areaCounts = (excursionsByArea ?? []).reduce((acc: Record<string, number>, e) => {
@@ -66,7 +68,8 @@ export default async function AdminAnalyticsPage() {
   // Bookings by category (from joined bookings)
   const bookingCatCounts: Record<string, number> = {};
   for (const b of (allBookings ?? [])) {
-    const cat = (b.excursions as { category: string | null } | null)?.category ?? null;
+    const subcat = (b.excursions as { category: string | null } | null)?.category ?? null;
+    const cat    = subcat ? getParentCategory(subcat) : null;
     if (cat) bookingCatCounts[cat] = (bookingCatCounts[cat] ?? 0) + 1;
   }
   const categoryData: CategoryCount[] = CATEGORY_KEYS.map(k => ({

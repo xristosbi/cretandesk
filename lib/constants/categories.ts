@@ -12,100 +12,100 @@ export interface Category {
 export const CATEGORIES: Category[] = [
   {
     value: "sea",
-    label: "Θαλάσσια & Υδάτινα",
+    label: "Θάλασσα",
     subcategories: [
-      { value: "boat_trip",      label: "Ημερήσια Βαρκάδα" },
-      { value: "sailing",        label: "Ιστιοπλοΐα" },
-      { value: "snorkeling",     label: "Snorkeling" },
-      { value: "diving",         label: "Καταδύσεις" },
-      { value: "kayak_sup",      label: "Kayak & SUP" },
-      { value: "water_sports",   label: "Θαλάσσια Σπορ" },
-      { value: "fishing",        label: "Ψάρεμα" },
-      { value: "sea_caves",      label: "Θαλάσσιες Σπηλιές" },
+      { value: "daily_cruise",     label: "Daily Cruises / Ferry" },
+      { value: "private_boat",     label: "Private Boat Trips" },
+      { value: "scuba_diving",     label: "Scuba Diving" },
+      { value: "water_sports",     label: "Water Sports" },
+      { value: "fishing_tourism",  label: "Fishing Tourism" },
     ],
   },
   {
     value: "adventure",
-    label: "Χερσαία & Περιπέτεια",
+    label: "Περιπέτεια & Φύση",
     subcategories: [
-      { value: "hiking",         label: "Πεζοπορία" },
-      { value: "gorge",          label: "Φαράγγια" },
-      { value: "cycling",        label: "Ποδηλασία / MTB" },
-      { value: "jeep_safari",    label: "Jeep Safari" },
-      { value: "climbing",       label: "Αναρρίχηση" },
-      { value: "horse_riding",   label: "Ιππασία" },
-      { value: "caving",         label: "Σπηλαιολογία" },
+      { value: "jeep_safari",      label: "Jeep Safari" },
+      { value: "quad_safari",      label: "Quad / Buggy Safari" },
+      { value: "hiking",           label: "Hiking / Trekking" },
+      { value: "canyoning",        label: "Canyoning" },
+      { value: "mountain_biking",  label: "Mountain Biking" },
+      { value: "horse_riding",     label: "Horse Riding" },
     ],
   },
   {
     value: "aerial",
-    label: "Εναέρια",
+    label: "Αέρας",
     subcategories: [
-      { value: "paragliding",    label: "Αλεξίπτωτο Πλαγιάς" },
-      { value: "helicopter",     label: "Ελικόπτερο" },
-      { value: "skydiving",      label: "Αλεξίπτωτο Ελεύθερης Πτώσης" },
-      { value: "hang_gliding",   label: "Ανεμόπτερο" },
-      { value: "ultralight",     label: "Μικρό Αεροσκάφος" },
+      { value: "helicopter_tour",  label: "Helicopter Tours" },
+      { value: "paragliding",      label: "Paragliding" },
+      { value: "hot_air_balloon",  label: "Hot Air Balloon" },
     ],
   },
   {
     value: "gastronomy",
-    label: "Γαστρονομία & Παράδοση",
+    label: "Γεύση & Παράδοση",
     subcategories: [
-      { value: "cooking_class",  label: "Μαθήματα Μαγειρικής" },
-      { value: "wine_tasting",   label: "Γευσιγνωσία Κρασιού" },
-      { value: "olive_oil",      label: "Ελαιόλαδο & Ελιές" },
-      { value: "cheese_making",  label: "Τυροκομία" },
-      { value: "farm_visit",     label: "Επίσκεψη Αγροκτήματος" },
-      { value: "local_market",   label: "Παραδοσιακή Αγορά" },
-      { value: "raki_distill",   label: "Κάζανο Τσικουδιάς" },
+      { value: "wine_tasting",     label: "Wine Tasting" },
+      { value: "olive_oil",        label: "Olive Oil Experience" },
+      { value: "cooking_class",    label: "Cooking Lessons" },
+      { value: "agrotourism",      label: "Agrotourism & Farming" },
+      { value: "cretan_night",     label: "Cretan Night" },
     ],
   },
   {
     value: "culture",
-    label: "Πολιτισμός & Κληρονομιά",
+    label: "Πολιτισμός & Ιστορία",
     subcategories: [
-      { value: "knossos",              label: "Κνωσός & Μινωικοί Χώροι" },
-      { value: "museum",               label: "Μουσεία" },
-      { value: "monastery",            label: "Μοναστήρια" },
-      { value: "venetian",             label: "Ενετικά Μνημεία" },
-      { value: "traditional_village",  label: "Παραδοσιακά Χωριά" },
-      { value: "byzantine",            label: "Βυζαντινοί Ναοί" },
-      { value: "archaeological",       label: "Αρχαιολογικοί Χώροι" },
+      { value: "archaeological_tour",  label: "Archaeological Tours" },
+      { value: "historical_sites",     label: "Historical Sites" },
+      { value: "religious_tourism",    label: "Religious Tourism" },
+      { value: "city_walking_tour",    label: "City Walking Tours" },
     ],
   },
   {
     value: "vip",
-    label: "VIP & Concierge",
+    label: "VIP & Services",
     subcategories: [
-      { value: "private_yacht",        label: "Private Yacht" },
-      { value: "helicopter_transfer",  label: "Μεταφορά με Ελικόπτερο" },
-      { value: "private_chef",         label: "Private Chef Experience" },
-      { value: "luxury_tour",          label: "Luxury Guided Tour" },
-      { value: "sunset_cruise",        label: "Sunset Cruise" },
-      { value: "villa_experience",     label: "Villa Experience" },
+      { value: "private_chef",         label: "Private Chef" },
+      { value: "chauffeur",            label: "Chauffeur & Luxury Transfers" },
+      { value: "wellness_spa",         label: "Wellness & Spa" },
+      { value: "villa_provisioning",   label: "Villa Provisioning" },
     ],
   },
   {
     value: "niche",
-    label: "Ειδικά Ενδιαφέροντα",
+    label: "Εναλλακτικά",
     subcategories: [
-      { value: "photography",          label: "Φωτογραφία" },
-      { value: "wellness_yoga",        label: "Wellness & Yoga" },
-      { value: "birdwatching",         label: "Παρατήρηση Πουλιών" },
-      { value: "astronomy",            label: "Αστρονομία" },
-      { value: "painting",             label: "Ζωγραφική" },
-      { value: "greek_language",       label: "Ελληνική Γλώσσα & Πολιτισμός" },
-      { value: "volunteering",         label: "Εθελοντισμός & Περιβάλλον" },
+      { value: "birdwatching",         label: "Birdwatching" },
+      { value: "astrotourism",         label: "Astrotourism" },
+      { value: "photography_tour",     label: "Photography Tours" },
+      { value: "ski_mountaineering",   label: "Ski Mountaineering" },
+      { value: "truffle_hunting",      label: "Truffle Hunting" },
     ],
   },
 ];
 
-export function getCategoryLabel(value: string): string {
-  return CATEGORIES.find((c) => c.value === value)?.label ?? value;
+// Flat map: subcategory value → parent category value
+const SUBCAT_TO_PARENT: Record<string, string> = {};
+const SUBCAT_LABELS: Record<string, string> = {};
+for (const cat of CATEGORIES) {
+  for (const sub of cat.subcategories) {
+    SUBCAT_TO_PARENT[sub.value] = cat.value;
+    SUBCAT_LABELS[sub.value] = sub.label;
+  }
 }
 
-export function getSubcategoryLabel(catValue: string, subValue: string): string {
-  const cat = CATEGORIES.find((c) => c.value === catValue);
-  return cat?.subcategories.find((s) => s.value === subValue)?.label ?? subValue;
+export function getParentCategory(subcatValue: string | null | undefined): string {
+  if (!subcatValue) return "";
+  return SUBCAT_TO_PARENT[subcatValue] ?? subcatValue;
+}
+
+export function getSubcategoryLabel(subcatValue: string | null | undefined): string {
+  if (!subcatValue) return "";
+  return SUBCAT_LABELS[subcatValue] ?? subcatValue;
+}
+
+export function getCategoryLabel(parentValue: string): string {
+  return CATEGORIES.find(c => c.value === parentValue)?.label ?? parentValue;
 }
