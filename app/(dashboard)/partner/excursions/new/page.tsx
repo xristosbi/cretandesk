@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { createExcursion } from "@/lib/actions/excursions";
 import { createClient } from "@/lib/supabase/client";
@@ -12,6 +12,31 @@ import { AlertCircle, ArrowLeft, ImagePlus, Loader2, X } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants/categories";
 import { PREFECTURES } from "@/lib/constants/areas";
 
+// ── Schedule types & helpers ─────────────────────────────────────────────────
+type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+type DaySchedule = { enabled: boolean; time: string };
+type ScheduleMap = Record<DayKey, DaySchedule>;
+
+const DAYS: { key: DayKey; label: string }[] = [
+  { key: "mon", label: "Δευτ" },
+  { key: "tue", label: "Τρίτ" },
+  { key: "wed", label: "Τετ"  },
+  { key: "thu", label: "Πέμπ" },
+  { key: "fri", label: "Παρ"  },
+  { key: "sat", label: "Σάββ" },
+  { key: "sun", label: "Κυρ"  },
+];
+
+const DEFAULT_SCHEDULE: ScheduleMap = {
+  mon: { enabled: false, time: "09:00" },
+  tue: { enabled: false, time: "09:00" },
+  wed: { enabled: false, time: "09:00" },
+  thu: { enabled: false, time: "09:00" },
+  fri: { enabled: false, time: "09:00" },
+  sat: { enabled: false, time: "09:00" },
+  sun: { enabled: false, time: "09:00" },
+};
+
 const MAX_PHOTOS = 10;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -22,10 +47,21 @@ const selectCls =
 export default function NewExcursionPage() {
   const [state, action, pending] = useActionState(createExcursion, { error: null });
 
-  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [photoUrls, setPhotoUrls]   = useState<string[]>([]);
+  const [uploading, setUploading]   = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [schedule, setSchedule] = useState<ScheduleMap>(DEFAULT_SCHEDULE);
+  const scheduleJson = useMemo(() => JSON.stringify(schedule), [schedule]);
+  const anyDayEnabled = Object.values(schedule).some(d => d.enabled);
+
+  function toggleDay(key: DayKey) {
+    setSchedule(prev => ({ ...prev, [key]: { ...prev[key], enabled: !prev[key].enabled } }));
+  }
+  function setTime(key: DayKey, time: string) {
+    setSchedule(prev => ({ ...prev, [key]: { ...prev[key], time } }));
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -106,10 +142,11 @@ export default function NewExcursionPage() {
       )}
 
       <form action={action} className="bg-card border border-border rounded-xl shadow-sm p-6 space-y-5">
-        {/* Hidden inputs carry uploaded photo URLs to the server action */}
+        {/* Carry photo URLs and schedule to the server action */}
         {photoUrls.map((url, i) => (
           <input key={i} type="hidden" name="photo_urls" value={url} />
         ))}
+        <input type="hidden" name="schedule" value={anyDayEnabled ? scheduleJson : ""} />
 
         <div className="space-y-1.5">
           <Label htmlFor="name">Όνομα εκδρομής <span className="text-danger">*</span></Label>
@@ -233,6 +270,79 @@ export default function NewExcursionPage() {
           {uploadError && (
             <p className="flex items-center gap-1.5 text-xs text-danger">
               <AlertCircle className="h-3.5 w-3.5 shrink-0" />{uploadError}
+            </p>
+          )}
+        </div>
+
+        {/* ── Weekly schedule ─────────────────────────────────────────── */}
+        <div className="space-y-3">
+          <div>
+            <Label>Εβδομαδιαίο Πρόγραμμα</Label>
+            <p className="text-xs text-muted mt-0.5">Επιλέξτε τις μέρες που τρέχει η εκδρομή και ορίστε ώρα έναρξης</p>
+          </div>
+
+          <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #E8ECF0" }}>
+            {DAYS.map(({ key, label }, idx) => {
+              const day = schedule[key];
+              return (
+                <div
+                  key={key}
+                  className="flex items-center gap-3 px-4 py-3"
+                  style={{
+                    borderBottom: idx < DAYS.length - 1 ? "1px solid #F0F2F5" : "none",
+                    background: day.enabled ? "#F0F7FF" : "white",
+                    transition: "background 0.12s",
+                  }}
+                >
+                  {/* Checkbox + day label */}
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none flex-1">
+                    <input
+                      type="checkbox"
+                      checked={day.enabled}
+                      onChange={() => toggleDay(key)}
+                      style={{ width: 16, height: 16, accentColor: "#1B3A5C", cursor: "pointer" }}
+                    />
+                    <span style={{
+                      fontSize: 13,
+                      fontWeight: day.enabled ? 600 : 400,
+                      color: day.enabled ? "#1B3A5C" : "#6B7A8D",
+                      width: 36,
+                    }}>
+                      {label}
+                    </span>
+                  </label>
+
+                  {/* Time input — only shown when enabled */}
+                  {day.enabled ? (
+                    <div className="flex items-center gap-2">
+                      <span style={{ fontSize: 12, color: "#9CA3AF" }}>Ώρα έναρξης</span>
+                      <input
+                        type="time"
+                        value={day.time}
+                        onChange={e => setTime(key, e.target.value)}
+                        style={{
+                          padding: "4px 8px",
+                          border: "1px solid #D1D5DB",
+                          borderRadius: 6,
+                          fontSize: 13,
+                          color: "#1B3A5C",
+                          background: "white",
+                          outline: "none",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: 12, color: "#D1D5DB" }}>Κλειστό</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {!anyDayEnabled && (
+            <p className="text-xs" style={{ color: "#9CA3AF" }}>
+              Αν δεν επιλεγεί πρόγραμμα, η εκδρομή θεωρείται διαθέσιμη κάθε μέρα.
             </p>
           )}
         </div>

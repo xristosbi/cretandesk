@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Building2, Phone, MapPin, FileText, Award } from "lucide-react";
+import { Search, Building2, Phone, MapPin, FileText, Award, Users, SlidersHorizontal } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { AddConnectionButton, RemoveConnectionButton } from "./ConnectionButtons";
 
 type Agency = {
@@ -122,8 +123,20 @@ export function AgenciesClient({
       )}
 
       {filtered.length === 0 && (
-        <div className="bg-white rounded-2xl p-16 text-center" style={{ border: "1px solid #E8ECF0" }}>
-          <p className="text-sm" style={{ color: "#9CA3AF" }}>Δεν βρέθηκαν γραφεία.</p>
+        <div className="bg-white rounded-2xl" style={{ border: "1px solid #E8ECF0" }}>
+          {agencies.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="Δεν υπάρχουν εγκεκριμένα γραφεία"
+              description="Δεν υπάρχουν εγκεκριμένα τουριστικά γραφεία στην πλατφόρμα ακόμα. Ελέγξτε αργότερα."
+            />
+          ) : (
+            <EmptyState
+              icon={SlidersHorizontal}
+              title="Δεν βρέθηκαν γραφεία"
+              description="Κανένα γραφείο δεν ταιριάζει με τα τρέχοντα φίλτρα. Δοκίμασε διαφορετική αναζήτηση."
+            />
+          )}
         </div>
       )}
     </div>

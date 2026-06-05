@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { toggleExcursionActive, deleteExcursion } from "@/lib/actions/excursions";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, MapPin, Clock, Users, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, MapPin, Clock, Users, Image as ImageIcon, Search, SlidersHorizontal } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PREFECTURES } from "@/lib/constants/areas";
 
 type Excursion = {
@@ -121,20 +122,20 @@ export function ExcursionsList({ excursions }: { excursions: Excursion[] }) {
 
       {/* ── Grid ── */}
       {!filtered.length ? (
-        <div className="bg-white rounded-2xl p-16 text-center" style={{ border: "1px solid #E8ECF0" }}>
+        <div className="bg-white rounded-2xl" style={{ border: "1px solid #E8ECF0" }}>
           {excursions.length === 0 ? (
-            <>
-              <MapPin style={{ width: 36, height: 36, color: "#D1D5DB", margin: "0 auto 12px" }} />
-              <p className="font-medium text-sm mb-1" style={{ color: "#1B3A5C" }}>Δεν έχεις εκδρομές ακόμα</p>
-              <p className="text-xs mb-4" style={{ color: "#9CA3AF" }}>Δημιούργησε την πρώτη σου εκδρομή</p>
-              <Link href="/partner/excursions/new">
-                <button type="button" style={{ padding: "8px 18px", borderRadius: 8, background: "#1B3A5C", color: "white", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}>
-                  Νέα Εκδρομή
-                </button>
-              </Link>
-            </>
+            <EmptyState
+              icon={MapPin}
+              title="Δεν έχεις εκδρομές ακόμα"
+              description="Δημιούργησε την πρώτη σου εκδρομή για να αρχίσεις να δέχεσαι κρατήσεις από τουριστικά γραφεία."
+              action={{ label: "+ Νέα Εκδρομή", href: "/partner/excursions/new" }}
+            />
           ) : (
-            <p className="text-sm" style={{ color: "#9CA3AF" }}>Δεν βρέθηκαν αποτελέσματα.</p>
+            <EmptyState
+              icon={SlidersHorizontal}
+              title="Δεν βρέθηκαν αποτελέσματα"
+              description="Δοκίμασε να αλλάξεις τα φίλτρα αναζήτησης."
+            />
           )}
         </div>
       ) : (

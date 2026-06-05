@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, MapPin, Phone, FileText, Lock } from "lucide-react";
+import { Search, MapPin, Phone, FileText, Lock, Handshake, SlidersHorizontal } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PREFECTURES } from "@/lib/constants/areas";
 
 type Partner = {
@@ -167,8 +168,20 @@ export function AgencyPartnersClient({
       )}
 
       {filtered.length === 0 && (
-        <div className="bg-white rounded-2xl p-16 text-center" style={{ border: "1px solid #E8ECF0" }}>
-          <p className="text-sm" style={{ color: "#9CA3AF" }}>Δεν βρέθηκαν πάροχοι.</p>
+        <div className="bg-white rounded-2xl" style={{ border: "1px solid #E8ECF0" }}>
+          {partners.length === 0 ? (
+            <EmptyState
+              icon={Handshake}
+              title="Δεν υπάρχουν εγκεκριμένοι πάροχοι"
+              description="Δεν υπάρχουν ακόμα εγκεκριμένοι πάροχοι στην πλατφόρμα. Ελέγξτε αργότερα."
+            />
+          ) : (
+            <EmptyState
+              icon={SlidersHorizontal}
+              title="Δεν βρέθηκαν πάροχοι"
+              description="Δεν υπάρχουν πάροχοι που να ταιριάζουν με τα φίλτρα σου. Δοκίμασε να αλλάξεις τα κριτήρια."
+            />
+          )}
         </div>
       )}
     </div>

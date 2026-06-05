@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/utils";
+import { CalendarX } from "lucide-react";
 import type { BookingStatus } from "@/types/database";
 
 export default async function AgencyBookingsPage() {
@@ -40,7 +42,12 @@ export default async function AgencyBookingsPage() {
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {!bookings?.length ? (
-          <div className="py-16 text-center text-muted">Δεν έχεις κρατήσεις ακόμα.</div>
+          <EmptyState
+            icon={CalendarX}
+            title="Δεν υπάρχουν κρατήσεις ακόμα"
+            description="Δεν έχεις κάνει ακόμα κάποιο αίτημα κράτησης. Βρες μια εκδρομή και κάνε το πρώτο σου αίτημα!"
+            action={{ label: "Αναζήτηση εκδρομών", href: "/agency/excursions" }}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

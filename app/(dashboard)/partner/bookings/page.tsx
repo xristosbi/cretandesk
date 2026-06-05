@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import { BookingActions } from "./BookingActions";
 import { BlackoutPanel } from "../BlackoutPanel";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/utils";
+import { Inbox } from "lucide-react";
 import type { BookingStatus } from "@/types/database";
 
 export default async function PartnerBookingsPage() {
@@ -70,7 +72,11 @@ export default async function PartnerBookingsPage() {
         <div>
           <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid #E8ECF0", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
             {!bookings?.length ? (
-              <div className="py-16 text-center" style={{ color: "#9CA3AF", fontSize: 14 }}>Δεν υπάρχουν κρατήσεις ακόμα.</div>
+              <EmptyState
+                icon={Inbox}
+                title="Καμία κράτηση ακόμα"
+                description="Δεν υπάρχουν κρατήσεις για τις εκδρομές σου. Όταν ένα γραφείο κάνει αίτημα, θα εμφανιστεί εδώ."
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">

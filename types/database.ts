@@ -200,6 +200,7 @@ export type Database = {
           duration_hours: number | null
           photos: string[] | null
           active: boolean
+          schedule: Record<string, { enabled: boolean; time: string }> | null
           created_at: string
         }
         Insert: {
@@ -214,6 +215,7 @@ export type Database = {
           duration_hours?: number | null
           photos?: string[] | null
           active?: boolean
+          schedule?: Record<string, { enabled: boolean; time: string }> | null
           created_at?: string
         }
         Update: {
@@ -228,6 +230,7 @@ export type Database = {
           duration_hours?: number | null
           photos?: string[] | null
           active?: boolean
+          schedule?: Record<string, { enabled: boolean; time: string }> | null
           created_at?: string
         }
         Relationships: [

@@ -23,6 +23,8 @@ export async function createExcursion(_prev: { error: string | null }, formData:
   const maxCapacity    = parseInt(formData.get("max_capacity") as string);
   const durationHours  = parseFloat(formData.get("duration_hours") as string);
   const photos         = (formData.getAll("photo_urls") as string[]).filter(Boolean);
+  const scheduleRaw    = formData.get("schedule") as string | null;
+  const schedule       = scheduleRaw ? JSON.parse(scheduleRaw) : null;
 
   if (!name) return { error: "Το όνομα είναι υποχρεωτικό." };
 
@@ -36,6 +38,7 @@ export async function createExcursion(_prev: { error: string | null }, formData:
     max_capacity:     isNaN(maxCapacity) ? null : maxCapacity,
     duration_hours:   isNaN(durationHours) ? null : durationHours,
     photos:           photos && photos.length > 0 ? photos : null,
+    schedule:         schedule || null,
     active:           true,
   });
 
